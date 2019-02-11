@@ -19,19 +19,30 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp', { useNewUrlParser : tru
   const db = client.db('TodoApp');
 
   // db.collection('Todos').find().toArray().then((documents) =>
-  db.collection('Todos').find({_id: new ObjectID('5c61962bebad09328ca6821e')}).toArray().then((documents) =>
+  // db.collection('Todos').find({_id: new ObjectID('5c61962bebad09328ca6821e')}).toArray().then((documents) =>
+  // {
+  //   // then-resolve?
+  //   console.log('Todos (see below)');
+  //   console.log(JSON.stringify(documents, undefined, 2));
+  //   // print documents
+  // },
+  // (error) =>   // then-reject?
+  // {
+  //     console.log('Unable to fetch Todos documents',error);
+  // });
+  // find with no arguments - all documents - returns cursor
+  // use a promise (toArray) with then
+
+  db.collection('Todos').find().count().then((count) =>   // promise&then yn le callback
   {
     // then-resolve?
-    console.log('Todos (see below)');
-    console.log(JSON.stringify(documents, undefined, 2));
+    console.log(`Todos count: ${count}`);
     // print documents
   },
   (error) =>   // then-reject?
   {
       console.log('Unable to fetch Todos documents',error);
   });
-  // find with no arguments - all documents - returns cursor
-  // use a promise (toArray) with then
 
   client.close();
 });
