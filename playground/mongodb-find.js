@@ -33,16 +33,28 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp', { useNewUrlParser : tru
   // find with no arguments - all documents - returns cursor
   // use a promise (toArray) with then
 
-  db.collection('Todos').find().count().then((count) =>   // promise&then yn le callback
-  {
-    // then-resolve?
-    console.log(`Todos count: ${count}`);
-    // print documents
+  // db.collection('Todos').find().count().then((count) =>   // promise&then yn le callback
+  // {
+  //   // then-resolve?
+  //   console.log(`Todos count: ${count}`);
+  //   // print documents
+  // },
+  // (error) =>   // then-reject?
+  // {
+  //     console.log('Unable to fetch Todos documents',error);
+  // });
+
+  db.collection('Users').find({name: 'T Stinkball'}).toArray().then((documents) =>
+  {   // success/fulfilled/resolved
+    console.log('All \'T Stinkball\' entries below:');
+    console.log(JSON.stringify(documents, undefined, 2));
   },
-  (error) =>   // then-reject?
-  {
-      console.log('Unable to fetch Todos documents',error);
-  });
+  // error/failed/rejected
+    (error) =>
+    {
+      console.log('Unable to query for T Stinkball', error);
+    }
+  );
 
   client.close();
 });
