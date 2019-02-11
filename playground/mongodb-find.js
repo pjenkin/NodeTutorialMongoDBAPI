@@ -18,7 +18,8 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp', { useNewUrlParser : tru
   console.log('Connected to MongoDb server');
   const db = client.db('TodoApp');
 
-  db.collection('Todos').find().toArray().then((documents) =>
+  // db.collection('Todos').find().toArray().then((documents) =>
+  db.collection('Todos').find({completed:false}).toArray().then((documents) =>
   {
     // then-resolve?
     console.log('Todos (see below)');
