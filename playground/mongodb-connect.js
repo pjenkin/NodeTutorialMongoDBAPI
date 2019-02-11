@@ -1,9 +1,9 @@
 // const MongoClient = require('mongodb').MongoClient;
 const {MongoClient, ObjectID} = require('mongodb'); // ES6 object destructuring
 
-var objID = new ObjectID();
-console.log(objID);
-return;   // temporary, for flow
+// var objID = new ObjectID();
+// console.log(objID);
+// return;   // temporary, for flow
 // var user = {name: 'P N Jenkin', age:45};
 // // ES6 object destructuring
 // var {name} = user;
