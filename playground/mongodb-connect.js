@@ -39,7 +39,8 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp', { useNewUrlParser : tru
         return console.log('Unable to insert document to Users', error)
       }
       //success
-      console.log(JSON.stringify(result.ops,undefined,2));
+      // console.log(JSON.stringify(result.ops,undefined,2));
+      console.log(JSON.stringify(result.ops[0]._id.getTimestamp(),undefined,2));
     });  // end of insertOne for Users
 
 
