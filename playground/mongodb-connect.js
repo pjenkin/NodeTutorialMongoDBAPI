@@ -10,19 +10,38 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp', { useNewUrlParser : tru
   console.log('Connected to MongoDb server');
   const db = client.db('TodoApp');
 
-  db.collection('Todos').insertOne(
-    {   // key/value pair and
-      text: 'Another note of some kind',
-      completed: false
+  // db.collection('Todos').insertOne(
+  //   {   // key/value pair and
+  //     text: 'Another note of some kind',
+  //     completed: false
+  //   }, (error, result) =>
+  //   { // failure
+  //     if (error)
+  //     {
+  //       return console.log('Unable to insert document', error);
+  //     }
+  //     // success
+  //     console.log(JSON.stringify(result.ops, undefined,2));
+  //   });   // end of insertOne
+
+
+  // challenge - insert new doc into Users collection (properties - name, age, location)
+  db.collection('Users').insertOne(
+    {
+      name: 'P N Jenkin',
+      age: 45,
+      location: 'Redruth, Kernow'
     }, (error, result) =>
-    { // failure
+    {
+      // failure
       if (error)
       {
-        return console.log('Unable to insert document', error);
+        return console.log('Unable to insert document to Users', error)
       }
-      // success
-      console.log(JSON.stringify(result.ops, undefined,2));
-    });   // end of insertOne
+      //success
+      console.log(JSON.stringify(result.ops,undefined,2));
+    });  // end of insertOne for Users
+
 
   client.close();
 });
