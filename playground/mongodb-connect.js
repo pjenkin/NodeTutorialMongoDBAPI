@@ -1,9 +1,12 @@
-const MongoClient = require('mongodb').MongoClient;
+// const MongoClient = require('mongodb').MongoClient;
+const {MongoClient, ObjectID} = require('mongodb'); // ES6 object destructuring
 
-
-var user = {name: 'P N Jenkin', age:45};
-// ES6 object destructuring
-var {name} = user; 
+var objID = new ObjectID();
+console.log(objID);
+return;   // temporary, for flow
+// var user = {name: 'P N Jenkin', age:45};
+// // ES6 object destructuring
+// var {name} = user;
 
 MongoClient.connect('mongodb://localhost:27017/TodoApp', { useNewUrlParser : true }, (error, client) => // error, db object
 {
