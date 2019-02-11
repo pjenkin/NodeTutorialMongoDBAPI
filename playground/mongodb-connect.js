@@ -1,5 +1,10 @@
 const MongoClient = require('mongodb').MongoClient;
 
+
+var user = {name: 'P N Jenkin', age:45};
+// ES6 object destructuring
+var {name} = user; 
+
 MongoClient.connect('mongodb://localhost:27017/TodoApp', { useNewUrlParser : true }, (error, client) => // error, db object
 {
   if (error)
@@ -26,22 +31,22 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp', { useNewUrlParser : tru
 
 
   // challenge - insert new doc into Users collection (properties - name, age, location)
-  db.collection('Users').insertOne(
-    {
-      name: 'P N Jenkin',
-      age: 45,
-      location: 'Redruth, Kernow'
-    }, (error, result) =>
-    {
-      // failure
-      if (error)
-      {
-        return console.log('Unable to insert document to Users', error)
-      }
-      //success
-      // console.log(JSON.stringify(result.ops,undefined,2));
-      console.log(JSON.stringify(result.ops[0]._id.getTimestamp(),undefined,2));
-    });  // end of insertOne for Users
+  // db.collection('Users').insertOne(
+  //   {
+  //     name: 'P N Jenkin',
+  //     age: 45,
+  //     location: 'Redruth, Kernow'
+  //   }, (error, result) =>
+  //   {
+  //     // failure
+  //     if (error)
+  //     {
+  //       return console.log('Unable to insert document to Users', error)
+  //     }
+  //     //success
+  //     // console.log(JSON.stringify(result.ops,undefined,2));
+  //     console.log(JSON.stringify(result.ops[0]._id.getTimestamp(),undefined,2));
+  //   });  // end of insertOne for Users
 
 
   client.close();
