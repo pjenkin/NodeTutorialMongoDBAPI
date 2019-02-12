@@ -6,7 +6,9 @@ mongoose.connect('mongodb://localhost:27017/TodoApp', {useNewUrlParser: true});
 var Todo = mongoose.model('Todo', {
   text:
   {
-    type: String
+    type: String,
+    required: true,
+    minlength: 1
   },
   completed:
   {
