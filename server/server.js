@@ -19,12 +19,24 @@ var Todo = mongoose.model('Todo', {
 });
 // model cf schema https://mongoosejs.com/docs/guide.html#models
 
-var newTodo = new Todo({text: 'mash potatoes'});
+// var newTodo = new Todo({text: 'mash potatoes'});
+//
+// newTodo.save().then((document) =>
+// {
+//   console.log('Saved document/record: ', document);
+// }, (error) =>
+// {
+//   console.log('Unable to save document/record', error);
+// });
 
-newTodo.save().then((document) =>
+// challenge 7-70 - Create record with model's property values completed
+var serveTodo = new Todo({text: 'serve mashed potatoes', completed: false, completedAt: null});
+
+serveTodo.save().then((document) =>
 {
+  console.log('Saving \'serve mashed potatoes\'...');
   console.log('Saved document/record: ', document);
 }, (error) =>
 {
-  console.log('Unable to save document/record', error);
+  console.log('Unable to save document/record: ', error);
 });
