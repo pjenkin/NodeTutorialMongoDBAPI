@@ -19,19 +19,42 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp', { useNewUrlParser : tru
   const db = client.db('TodoApp');
 
 
-  db.collection('Todos').findOneAndUpdate({_id: new ObjectID('5c629fb376b184008c8e48fd')},
+  // db.collection('Todos').findOneAndUpdate({_id: new ObjectID('5c629fb376b184008c8e48fd')},
+  // {
+  //   $set:   // NB mongodb update operator as an argument
+  //   {
+  //     completed: true
+  //   }
+  // },
+  //   {
+  //     returnNewDocument: true   // option to return updated document/record
+  //   }).then((result) =>
+  // {   // success only at mo
+  //     console.log(result);
+  // });
+
+// challenge 7-68 (1) update a record/document's name property, (2) increment age by 1 (NB both using mongodb update operators)
+  db.collection('Users').findOneAndUpdate({_id: new ObjectID('5c61c60776b184008c8e41fc')},
   {
-    $set:   // NB mongodb update operator as an argument
+    $set:
     {
-      completed: true
+      // (1) update a record/document's name property
+      name: 'Humphrey Kamel'
+    },
+    $inc:
+    {
+      // (2) increment age by 1
+      age: 1
     }
   },
-    {
-      returnNewDocument: true   // option to return updated document/record
-    }).then((result) =>
-  {   // success only at mo
-      console.log(result);
+  {
+    returnNewDocument: true
+  })
+  .then( (result) =>
+  {   // only for success/fulfil at mo
+    console.log(result);
   });
+
 
   // deleteMany - delete all matching query
   // db.collection('Todos').deleteMany({text:'eat crowst'}).then((result) =>
