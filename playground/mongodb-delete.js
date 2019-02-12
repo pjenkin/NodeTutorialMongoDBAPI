@@ -19,14 +19,17 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp', { useNewUrlParser : tru
   const db = client.db('TodoApp');
 
 
-  // deleteMany
-  db.collection('Todos').deleteMany({text:'eat crowst'}).then((result) =>
-  { // only cover sucess/fulfilment for the moment
-      console.log(result);
+  // deleteMany - delete all matching query
+  // db.collection('Todos').deleteMany({text:'eat crowst'}).then((result) =>
+  // { // only cover sucess/fulfilment for the moment
+  //     console.log(result);
+  // });
+
+  // deleteOne - delete first document/record matching query
+  db.collection('Todos').deleteOne({text: 'eat crowst'}).then((result) =>
+  {
+      console.log(result);    // JSON output including result: { n: 1, ok: 1 }
   });
-
-  // deleteOne
-
 
   //findOneAndDelete
 
