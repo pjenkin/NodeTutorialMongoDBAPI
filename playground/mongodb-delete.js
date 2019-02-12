@@ -26,13 +26,16 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp', { useNewUrlParser : tru
   // });
 
   // deleteOne - delete first document/record matching query
-  db.collection('Todos').deleteOne({text: 'eat crowst'}).then((result) =>
+  // db.collection('Todos').deleteOne({text: 'eat crowst'}).then((result) =>
+  // {
+  //     console.log(result);    // JSON output including result: { n: 1, ok: 1 }
+  // });
+
+  //findOneAndDelete - deletes first matching query and returns data deleted (in case of use in Undo code)
+  db.collection('Todos').findOneAndDelete({completed: false}).then((result) =>
   {
-      console.log(result);    // JSON output including result: { n: 1, ok: 1 }
+    console.log(result);    // 
   });
-
-  //findOneAndDelete
-
 
   // db.collection('Todos').insertOne(
   //   {   // key/value pair and
