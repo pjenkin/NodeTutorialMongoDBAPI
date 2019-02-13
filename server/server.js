@@ -12,8 +12,22 @@ app.use(bodyParser.json());   // sending JSON to express
 
 app.post('/todos',(request, response) =>
 {
-  console.log(request.body);
-});
+  // console.log(request.body);
+  var todo = new Todo(
+    {
+      text: request.body.text
+    });
+
+    todo.save().then((document) =>
+    { // success/resolve
+      response.send(document);    // send the whole new mongodb document/record back
+    },
+    (error) =>
+    {   // error/reject
+      response.status(400).send(error);  // order?
+    }
+    );
+}); // end of /todos route
 
 
 app.listen(3000, () =>
