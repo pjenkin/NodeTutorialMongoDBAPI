@@ -1,53 +1,11 @@
-const mongoose = require('mongoose');
+var {mongoose} = require('./db/mongoose');  // E6 destructuring
+var {Todo} = require('./models/todo');
+var {User} = require('./models/user');
 
-mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/TodoApp', {useNewUrlParser: true});
-// mongoose configured
-var Todo = mongoose.model('Todo', {
-  text:
-  {
-    type: String,
-    required: true,
-    minlength: 1,
-    trim: true
-  },
-  completed:
-  {
-    type: Boolean,
-    default: false
-  },
-  completedAt:
-  {
-    type: Number,    // standard UNIX timestamp
-    default: null
-  }
-});
-// model cf schema https://mongoosejs.com/docs/guide.html#models
-
-// challenge 7-71 User email property require & trim & string minlength 1
-
-var User = mongoose.model('User',
-{
-  email:
-  {
-    type: String,
-    required: true,
-    trim: true,
-    minlength: 1
-  }
-}
-);
 
 // var stinkyUser = new User({email: ''}).save().then((document) =>   // deliberately wrong
-var stinkyUser = new User({email: 'stinky@example.com'}).save().then((document) =>   // deliberately wrong
-{
-  console.log('Added Stinky as an user', document);
-},
-(error) =>
-{
-  console.log('Alas, error adding Stinky as an user: ', error.message);
-}
-);
+// var stinkvar mongoose = require('mongoose');
+
 
 // var newTodo = new Todo({text: 'mash potatoes'});
 //
