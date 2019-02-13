@@ -10,7 +10,7 @@ var app = express();    // all round express server
 // middleware
 app.use(bodyParser.json());   // sending JSON to express
 
-app.post('/todos',(request, response) =>
+app.post('/todos',(request, response) =>    // POST for todos
 {
   // console.log(request.body);
   var todo = new Todo(
@@ -24,11 +24,24 @@ app.post('/todos',(request, response) =>
     },
     (error) =>
     {   // error/reject
-      response.status(400).send(error);  // order?
+      response.status(400).send(error);
     }
     );
-}); // end of /todos route
+});   // end of /todos POST route
 
+
+app.get('/todos', (request, response) =>    // GET for todos
+{
+  Todo.find().then(
+  (todos) =>
+  {
+    response.send({todos});     // object rather than array for flexibility in future
+  },
+  (error) =>
+  {
+    response.status(400).send(error);
+  })
+});   // end of /todos POST route
 
 app.listen(3000, () =>
 {

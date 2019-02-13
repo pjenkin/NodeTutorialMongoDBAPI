@@ -4,12 +4,19 @@ const request = require('supertest');
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
 
+const seedTodos = [{text: 'First text todo'}, {text: 'Second text todo'}]
+
 // delete all collection's documents/records to facilitate document/record counting test
 beforeEach((done) =>
 {
   // NB: delete all documents/records in Todo
   // Todo.remove({}).then(()=> done());
-  Todo.deleteMany({}).then(()=> done());
+  // Todo.deleteMany({}).then(()=> done());
+  Todo.deleteMany({}).then(()=>
+  {
+      return Todo.insertMany(seedTodos);    // return response to enable chaining of callbacks
+  })
+  .then(() => done());
   // only move on to test when done
 });
 
@@ -40,11 +47,12 @@ describe('POST /todos', () =>
           return done(error);   // return on error is just for program flow; any error is wrapped up in done callback
         }
 
-        Todo.find().then ((todos) =>
+        // Todo.find().then ((todos) =>
+        Todo.find({text:text}).then ((todos) =>       // query only the todos matching (relies upon no duplicates)
         {
           describe('#todos find test',() =>
           {
-            expect(todos.length).toBe(1);   // aha! only 1 in Todo collection
+            expect(todos.length).toBe(1);   // aha! only 1 in queried Todo collection (hopefully)
             expect(todos[0].text).toBe(text);
             done();
           });
@@ -60,7 +68,13 @@ describe('POST /todos', () =>
   {
     // NB: delete all documents/records in Todo
     // Todo.remove({}).then(()=> done());
-    Todo.deleteMany({}).then(()=> done());
+    // Todo.deleteMany({}).then(()=> done());
+    Todo.deleteMany({}).then(()=>
+    {
+        return Todo.insertMany(seedTodos);    // return response to enable chaining of callbacks
+    })
+    .then(() => done());
+
     // only move on to test when done
   });
 
@@ -86,7 +100,8 @@ describe('POST /todos', () =>
 
       Todo.find().then((todos) =>
       {
-        expect(todos.length).toBe(0);   // after failed invalid document sent, should be zero documents in collection
+        // expect(todos.length).toBe(0);   // after failed invalid document sent, should be zero documents in collection
+        expect(todos.length).toBe(2);   // after failed invalid document sent, should be zero documents in collection
         done();   // now wrap-up
       }).catch((error) => done(error));
     });     // end of end
