@@ -54,7 +54,49 @@ describe('POST /todos', () =>
     );
   });   // end of it('should create a new todo'
 
+  // re-empty Todos collection (necessary after previous test?)
+  // delete all collection's documents/records to facilitate document/record counting test
+  beforeEach((done) =>
+  {
+    // NB: delete all documents/records in Todo
+    // Todo.remove({}).then(()=> done());
+    Todo.deleteMany({}).then(()=> done());
+    // only move on to test when done
+  });
 
+
+  it('should not create a todo when sent invalid body data', (done) =>
+  {
+    var emptyText = '';
+    request(app)
+    .post('/todos')
+    .send(
+      {
+        text: emptyText   // send a blank string - this should be not accepted
+      }
+    )
+    .expect(400)
+    .end((error, response) =>
+    {
+      if (error)
+      {
+        return done(error);     // quit flow here if an error (in code?)
+      }
+      // still within end()
+
+      Todo.find().then((todos) =>
+      {
+        expect(todos.length).toBe(0);   // after failed invalid document sent, should be zero documents in collection
+        done();   // now wrap-up
+      }).catch((error) => done(error));
+    });     // end of end
+
+    // challenge 7-74
+    // send an empty ObjectID
+    // expect that a 400 received (1)
+    // assume length of todos == 0 (as above) (2)
+  }
+);  // end of it('should not create a todo when sent invalid body data'
 
 
 }
