@@ -20,3 +20,8 @@ Todo.findOne(      // cf firstOrDefault??
 {
   console.log('Todos', todo);
 });
+
+Todo.findById(id).then((todo) =>     // by ID - just 1 todo
+{
+  console.log('Todos', todo);
+});
