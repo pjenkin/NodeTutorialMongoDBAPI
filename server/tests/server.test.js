@@ -113,6 +113,19 @@ describe('POST /todos', () =>
   }
 );  // end of it('should not create a todo when sent invalid body data'
 
+});   // end of describe POST /todos tests
 
-}
-);
+describe('GET /todos', () =>
+{
+  it('should get all todos',(done) =>
+  {
+    request(app)    // express
+    .get('/todos')
+    .expect(200)    // should be ok
+    .expect((response) =>
+    {
+      expect(response.body.todos.length).toBe(2);   // just the 2 added as seed
+    })
+    .end(done);     // nothing ansynchronous being done for end to handle
+  });
+});
