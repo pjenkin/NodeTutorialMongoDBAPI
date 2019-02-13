@@ -37,6 +37,10 @@ app.listen(3000, () =>
 );
 
 
+module.exports = {
+  app   // NB app not server exporteds
+};
+
 // var stinkyUser = new User({email: ''}).save().then((document) =>   // deliberately wrong
 // var stinkvar mongoose = require('mongoose');
 
