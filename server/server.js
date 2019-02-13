@@ -49,6 +49,12 @@ app.listen(3000, () =>
 }
 );
 
+// GET /todos/1234    :id - url parameter (request params)
+app.get('/todos/:id', (request, response) =>
+{
+  response.send(request.params);    // to test in Postman with http://localhost:3000/todos/987
+});
+
 
 module.exports = {
   app   // NB app not server exporteds
