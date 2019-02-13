@@ -7,6 +7,15 @@ var bodyParser = require('body-parser');
 
 var app = express();    // all round express server
 
+// middleware
+app.use(bodyParser.json());   // sending JSON to express
+
+app.post('/todos',(request, response) =>
+{
+  console.log(request.body);
+});
+
+
 app.listen(3000, () =>
 {
   console.log('Started on port 3000');
