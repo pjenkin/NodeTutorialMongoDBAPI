@@ -2,6 +2,17 @@ var {mongoose} = require('./db/mongoose');  // E6 destructuring
 var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
 
+var express = require('express');
+var bodyParser = require('body-parser');
+
+var app = express();    // all round express server
+
+app.listen(3000, () =>
+{
+  console.log('Started on port 3000');
+}
+);
+
 
 // var stinkyUser = new User({email: ''}).save().then((document) =>   // deliberately wrong
 // var stinkvar mongoose = require('mongoose');
