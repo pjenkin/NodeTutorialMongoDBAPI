@@ -4,6 +4,16 @@ const request = require('supertest');
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
 
+// delete all collection's documents/records to facilitate document/record counting test
+beforeEach((done) =>
+{
+  // NB: delete all documents/records in Todo
+  // Todo.remove({}).then(()=> done());
+  Todo.deleteMany({}).then(()=> done());
+  // only move on to test when done
+});
+
+
 describe('POST /todos', () =>
 {
   it('should create a new todo', (done) =>    // done - asynchronous (callback not promise)
@@ -34,7 +44,7 @@ describe('POST /todos', () =>
         {
           describe('#todos find test',() =>
           {
-            expect(todos.length).toBe(1);   // only 1 in Todo, not in db
+            expect(todos.length).toBe(1);   // aha! only 1 in Todo collection
             expect(todos[0].text).toBe(text);
             done();
           });
@@ -42,6 +52,10 @@ describe('POST /todos', () =>
         .catch((error) => done(error));    // 1-line statement syntax not arrow function syntax i.e. return done(error)
       }
     );
-  });
+  });   // end of it('should create a new todo'
+
+
+
+
 }
 );
