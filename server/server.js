@@ -40,7 +40,7 @@ app.get('/todos', (request, response) =>    // GET for todos
   (error) =>
   {
     response.status(400).send(error);
-  })
+  });
 });   // end of /todos POST route
 
 app.listen(3000, () =>
