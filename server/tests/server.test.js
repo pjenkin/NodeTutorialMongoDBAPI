@@ -3,8 +3,18 @@ const request = require('supertest');
 
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
+const {ObjectID} = require('mongodb');
 
-const seedTodos = [{text: 'First text todo'}, {text: 'Second text todo'}]
+const seedTodos = [
+  {
+    _id: new ObjectID(),
+    text: 'First text todo'
+  },
+  {
+    _id: new ObjectID(),
+    text: 'Second text todo'
+  }
+]
 
 // delete all collection's documents/records to facilitate document/record counting test
 beforeEach((done) =>
@@ -128,4 +138,22 @@ describe('GET /todos', () =>
     })
     .end(done);     // nothing ansynchronous being done for end to handle
   });
+});
+
+describe('GET /todos/:id', () =>
+{
+it('should return todo document', (done) =>
+{
+// console.log(JSON.stringify(seedTodos[0]))  ;
+// console.log(seedTodos[0]._id)  ;
+  request(app)
+  .get(`/todos/${seedTodos[0]._id.toHexString()}`)    // NB don't include ':id' (e.g.) in url
+  .expect(200)
+  .expect((response) =>
+  {
+    expect(response.body.todo.text).toBe(seedTodos[0].text);
+  })
+  .end(done);
+});
+
 });
