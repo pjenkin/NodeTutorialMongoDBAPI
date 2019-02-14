@@ -7,6 +7,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 
 var app = express();    // all round express server
+var port = process.env.PORT || 3000;    // auto-configuring port
 
 // middleware
 app.use(bodyParser.json());   // sending JSON to express
@@ -93,9 +94,9 @@ app.get('/todos/:id', (request, response) =>
 
 
 
-app.listen(3000, () =>
+app.listen(port, () =>
 {
-  console.log('Started on port 3000');
+  console.log(`Started on port ${port}`);
 }
 );
 
