@@ -221,15 +221,46 @@ describe('DELETE /todos/:id', ()=> {
 
   });
 /*
-// temporarily REM out these assertion stubs (would not end in 2 seconds otherwise)
   it('should return 404 if todo document not found' ,() =>
   {
 
   });
+*/
+  // copy/paste from above and alter get to delete
+  // i.e. same testing for invalid/non-existent documents/records for delete as for get
+  it('should return 404 if todo not found', (done) =>
+  {
+    // first 4 digits of ID (timestamp) to 1000-9999
+    var randomId = Math.floor(1000 + Math.random() * 9000 ).toString() + seedTodos[0]._id.toHexString().substring(4);
+    // randomId = '6c653071f8f7be29142e55e9';    // manually adjusted id
+    // console.log('random id: ',randomId);
+      // (1) new ObjectID with toHexString
+      // ensure 404 received
+      var hexId = new ObjectID().toHexString();
 
+      request(app)
+      // .get(`/todos/${   seedTodos[0]._id.toHexString()}`)
+      //.get(`/todos/${ randomId}`)
+      .delete(`/todos/${hexId}`)
+      .expect(404)        // should get 400?
+      .end(done);
+  });
+
+/*
+  // copy/paste from above and alter get to delete
   it('should return a 404 if the ObjectID is invalid', ()=>
   {
 
   });
 */
-});
+
+  it('should return 404 for invalid object IDs', (done) =>
+  {
+    // (2) /todos/123
+    request(app)
+    .delete('/todos/123')    // obviously invalid id 1234
+    .expect(404)
+    .end(done);
+  });
+
+});       // end of describe('DELETE /todos/:id'

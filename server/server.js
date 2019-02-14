@@ -110,7 +110,8 @@ app.delete('/todos/:id', (request, response) =>
     if (!todo)
     {
       console.log(`ID ${id} not found`);
-      return response.status(400).send();
+      // return response.status(400).send();
+      return response.status(404).send();
     }
 
     // otherwise (1) success (b) doc found: return deleted doc in body
