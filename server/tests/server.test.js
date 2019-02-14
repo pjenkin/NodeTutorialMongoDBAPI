@@ -166,9 +166,12 @@ it('should return todo document', (done) =>
     // console.log('random id: ',randomId);
       // (1) new ObjectID with toHexString
       // ensure 404 received
+      var hexId = new ObjectID().toHexString();
+
       request(app)
       // .get(`/todos/${   seedTodos[0]._id.toHexString()}`)
-      .get(`/todos/${ randomId}`)
+      //.get(`/todos/${ randomId}`)
+      .get(`/todos/${hexId}`)
       .expect(400)        // should get 400?
       .end(done);
   });
