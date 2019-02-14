@@ -184,6 +184,52 @@ it('should return todo document', (done) =>
     .expect(404)
     .end(done);
   });
-
-
 });   // end of describe('GET /todos/:id'
+
+describe('DELETE /todos/:id', ()=> {
+  it('should remove a todo', (done) =>
+  {
+      var hexId = seedTodos[0]._id.toHexString();
+
+      request(app)
+      .delete(`/todos/${hexId}`)
+      .expect(200)    // known to exist in seed data
+      .expect( (response) =>
+      {
+        expect(response.body.todo._id).toBe(hexId);      // custom expect - that this will act on expected document/record
+      }).end((error, response) =>
+      {
+        if (error)
+        {
+          return done(error);
+        }
+
+        // challenge 7-83
+        // check that record has been deleted - i.e. no longer existing
+        // findById(hexId) query - should fail - todo in then call does not exist (expect(todo).toNotExist) - (2) catch for error, pass to done
+
+        Todo.findById(hexId).then((todo) =>
+        // Todo.find({_id:hexId}).then((todo) =>
+        {   // just success at the mo in this query for this assertion
+          // expect(todo).toNotExist();
+          expect(todo).toBeFalsy();       // https://github.com/mjackson/expect/issues/238#issuecomment-417936839
+          done();                         // if it's got this far, this (it('should remove a todo') is fair 'nuff done
+        }).catch((error) => done(error));
+      });
+
+      // end() is called with (error, response)
+
+  });
+/*
+// temporarily REM out these assertion stubs (would not end in 2 seconds otherwise)
+  it('should return 404 if todo document not found' ,() =>
+  {
+
+  });
+
+  it('should return a 404 if the ObjectID is invalid', ()=>
+  {
+
+  });
+*/
+});
