@@ -9,6 +9,8 @@ var bodyParser = require('body-parser');
 var app = express();    // all round express server
 var port = process.env.PORT || 3000;    // auto-configuring port
 
+// NB mlabs add-on demanded payment card details, so not deploying to Heroku
+
 // middleware
 app.use(bodyParser.json());   // sending JSON to express
 
