@@ -71,7 +71,8 @@ app.get('/todos/:id', (request, response) =>
     if (!todo)
     {
       console.log('Id not found');
-      return response.status(400).send();
+      // return response.status(400).send();
+      return response.status(404).send();
     }
 
     // 2(b) if todo record found, send in body

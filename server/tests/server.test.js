@@ -172,7 +172,7 @@ it('should return todo document', (done) =>
       // .get(`/todos/${   seedTodos[0]._id.toHexString()}`)
       //.get(`/todos/${ randomId}`)
       .get(`/todos/${hexId}`)
-      .expect(400)        // should get 400?
+      .expect(404)        // should get 400?
       .end(done);
   });
 
