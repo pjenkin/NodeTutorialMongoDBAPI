@@ -90,7 +90,40 @@ app.get('/todos/:id', (request, response) =>
 
 
 
+app.delete('/todos/:id', (request, response) =>
+{
+    // get the id
+    // validate the id (404 if not)
+    // remove todo by id   (1) success (a) no doc: 400 & empty body (b) doc found: return deleted doc in body (2)  error 400 empty body
+    var id = request.params.id;
 
+    // validate the id (404 if not) - NB return for program flow only
+    if (!ObjectID.isValid(id))
+    {
+      console.log(`Invalid ID ${id}`);
+      return response.status(404).send();
+    }
+
+    Todo.findByIdAndDelete(id).then((todo) =>
+  {
+    // (1) success (a) no doc: 400 & empty body - NB return for program flow only
+    if (!todo)
+    {
+      console.log(`ID ${id} not found`);
+      return response.status(400).send();
+    }
+
+    // otherwise (1) success (b) doc found: return deleted doc in body
+    console.log(`document with ID ${id} deleted`);
+    response.status(200).send({todo});
+
+  }).catch((error) =>
+  {
+    // (2)  error 400 empty body
+    console.log(error.message);
+    response.status(400).send();
+  });
+});   // end of delete /todos/:id
 
 
 
