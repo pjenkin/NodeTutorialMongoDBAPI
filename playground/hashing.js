@@ -13,5 +13,16 @@ var data = {
 var token =
 {
   data,   // ES6 abbreviation
-  hash: SHA256(JSON.stringify(data)).toString   // for checking
+  hash: SHA256(JSON.stringify(data) + 'somesecret').toString()
+  // salted hash (somesecret) for checking
+}
+
+var resultHash = SHA256(JSON.stringify(token.data) + 'somesecret') .toString();
+
+if (resultHash === token.hash)
+{
+  console.log('Hash comparison d\'show data was not changed');
+}
+else {
+  console.log('Hash comparison d\'show data *was* indeed changed. Don\'t trust!');
 }
