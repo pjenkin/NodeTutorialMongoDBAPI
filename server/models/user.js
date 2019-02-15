@@ -3,6 +3,8 @@ const validator = require('validator');
 
 // challenge 7-71 User email property require & trim & string minlength 1
 
+mongoose.set('useCreateIndex',true);    // https://github.com/Automattic/mongoose/issues/6890
+
 var User = mongoose.model('User',
 {
   email:

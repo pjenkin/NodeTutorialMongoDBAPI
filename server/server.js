@@ -179,6 +179,32 @@ app.patch('/todos/:id', (request, response) =>
 });
 
 
+// challenge 8-88
+// use pick on properties (email, password), save and success or error
+// POST/users
+app.post('/users',(request, response) =>    // POST for todos
+{
+  // use lodash pick to ensure only correct fields/parameters/properties taken from POST
+  var body = _.pick(request.body, ['email', 'password']);
+  
+  var user = new User(
+    {
+      email: body.email,
+      password: body.password
+    });
+
+  user.save().then((document) =>
+  { // success/resolve
+    response.send(document);    // send the whole new mongodb document/record back
+  },
+  (error) =>
+  {   // error/reject
+    response.status(400).send(error);
+  }
+  );
+});   // end of /users POST route
+
+
 app.listen(port, () =>
 {
   console.log(`Started on port ${port}`);
