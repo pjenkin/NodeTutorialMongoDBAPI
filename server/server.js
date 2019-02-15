@@ -122,17 +122,22 @@ app.delete('/todos/:id', (request, response) =>
 
   }).catch((error) =>
   {
-    // (2)  error 400 empty body
+
+
+// PATCH route to change only specific parameters, as included in the body of the PATCH request    // (2)  error 400 empty body
     console.log(error.message);
     response.status(400).send();
   });
 });   // end of delete /todos/:id
 
 
+
+// PATCH route to change only specific parameters, as included in the body of the PATCH request
 app.patch('/todos/:id', (request, response) =>
 {
   var id = request.params.id;
   var body = _.pick(request.body, ['text', 'completed']);
+  // pick only applicable parameters from request body
 
   var id = request.params.id;
 
@@ -153,7 +158,10 @@ app.patch('/todos/:id', (request, response) =>
     body.completedAt = null;
   }
   // $set mongodb operator - body already provided in code above
+  // DeprecationWarning: collection.findAndModify is deprecated. Use findOneAndUpdate, findOneAndReplace or findOneAndDelete instead.
+  // https://github.com/Automattic/mongoose/issues/6880
   Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) =>
+  // Todo.findOneAndUpdate({_id:new ObjectID(id)}, {$set: body}, {new: true}).then((todo) =>
   {
       if (!todo)
       {
