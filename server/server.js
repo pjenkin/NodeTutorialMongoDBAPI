@@ -186,16 +186,19 @@ app.post('/users',(request, response) =>    // POST for todos
 {
   // use lodash pick to ensure only correct fields/parameters/properties taken from POST
   var body = _.pick(request.body, ['email', 'password']);
-  
-  var user = new User(
-    {
-      email: body.email,
-      password: body.password
-    });
+
+  // var user = new User(
+  //   {
+  //     email: body.email,
+  //     password: body.password
+  //   });
+
+  var user = new User(body);
 
   user.save().then((document) =>
   { // success/resolve
     response.send(document);    // send the whole new mongodb document/record back
+    console.log(`added user ${user.email}`);
   },
   (error) =>
   {   // error/reject
