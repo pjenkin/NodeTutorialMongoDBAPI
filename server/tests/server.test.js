@@ -12,7 +12,9 @@ const seedTodos = [
   },
   {
     _id: new ObjectID(),
-    text: 'Second text todo'
+    text: 'Second text todo',
+    completed: true,
+    completedAt: 1000
   }
 ]
 
@@ -160,10 +162,6 @@ it('should return todo document', (done) =>
   // challenge 7-79
   it('should return 404 if todo not found', (done) =>
   {
-    // first 4 digits of ID (timestamp) to 1000-9999
-    var randomId = Math.floor(1000 + Math.random() * 9000 ).toString() + seedTodos[0]._id.toHexString().substring(4);
-    // randomId = '6c653071f8f7be29142e55e9';    // manually adjusted id
-    // console.log('random id: ',randomId);
       // (1) new ObjectID with toHexString
       // ensure 404 received
       var hexId = new ObjectID().toHexString();
@@ -230,10 +228,6 @@ describe('DELETE /todos/:id', ()=> {
   // i.e. same testing for invalid/non-existent documents/records for delete as for get
   it('should return 404 if todo not found', (done) =>
   {
-    // first 4 digits of ID (timestamp) to 1000-9999
-    var randomId = Math.floor(1000 + Math.random() * 9000 ).toString() + seedTodos[0]._id.toHexString().substring(4);
-    // randomId = '6c653071f8f7be29142e55e9';    // manually adjusted id
-    // console.log('random id: ',randomId);
       // (1) new ObjectID with toHexString
       // ensure 404 received
       var hexId = new ObjectID().toHexString();
@@ -264,3 +258,87 @@ describe('DELETE /todos/:id', ()=> {
   });
 
 });       // end of describe('DELETE /todos/:id'
+
+
+
+// describe string: VERB/METHOD url
+describe('PATCH /todos/:id', () =>
+{
+  it('should update the todo',(done) =>
+  {
+      var firstTestText = '1st PATCH test text';
+
+      // get 1st item ID
+      // update text to something, set completed using patch
+      // assert: (1) 200 response
+      // (2) text is changed correctly, (3) completed is true (4) completedAt is a number
+      request(app)
+      .patch(`/todos/${seedTodos[0]._id.toHexString()}`)    // NB don't include ':id' (e.g.) in url
+      .send({
+        "text": firstTestText,
+        "completed": true
+      })    // hard to find documention on superagent PATCH syntax
+      .expect(200)
+      .expect((response) =>
+      {
+        expect(response.body.todo.text).toBe(firstTestText);
+        expect(response.body.todo.completed).toBeTruthy();        // NB expect changed from toBeTrue
+        expect(typeof response.body.todo.completedAt).toBe('number');    // NB expect changed from toBeA(Number)
+      })
+      .end(done);
+
+  });
+
+  it('should clear completedAt if/when todo is not completed', (done) =>
+  {
+    var secondTestText = '(guess what) 2nd PATCH test text';
+
+    // get 2nd item // IDEA: // update text set completed to false using patch
+    // assert (1): text correctly changed
+    // (2) completedAt is null (toNotExist/toBeFalsy)
+    request(app)
+    .patch(`/todos/${seedTodos[1]._id.toHexString()}`)    // NB don't include ':id' (e.g.) in url
+    .send({
+      "text": secondTestText,
+      "completed": false
+    })    // hard to find documention on superagent PATCH syntax
+    .expect(200)
+    .expect((response) =>
+    {
+      expect(response.body.todo.text).toBe(secondTestText);
+      expect(response.body.todo.completed).toBeFalsy();
+      expect(response.body.todo.completedAt).toBeNull();
+    })
+    .end(done);
+
+  });
+
+  it('should return 404 if todo not found', (done) =>
+  {
+      // (1) new ObjectID with toHexString
+      // ensure 404 received
+      var hexId = new ObjectID().toHexString();
+
+      request(app)
+      // .get(`/todos/${   seedTodos[0]._id.toHexString()}`)
+      //.get(`/todos/${ randomId}`)
+      .patch(`/todos/${hexId}`)
+      .expect(404)        // should get 400?
+      .end(done);
+  });
+
+  it('should return 404 if todo not found', (done) =>
+  {
+      // (1) new ObjectID with toHexString
+      // ensure 404 received
+      var hexId = new ObjectID().toHexString();
+
+      request(app)
+      // .get(`/todos/${   seedTodos[0]._id.toHexString()}`)
+      //.get(`/todos/${ randomId}`)
+      .delete(`/todos/${hexId}`)
+      .expect(404)        // should get 400?
+      .end(done);
+  });
+
+});   // end of describe('PATCH /todos/:id'
