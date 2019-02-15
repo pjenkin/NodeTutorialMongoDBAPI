@@ -1,3 +1,5 @@
+const _ = require('lodash');
+
 var {mongoose} = require('./db/mongoose');  // E6 destructuring
 var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
@@ -127,7 +129,42 @@ app.delete('/todos/:id', (request, response) =>
 });   // end of delete /todos/:id
 
 
+app.patch('/todos/:id', (request, response) =>
+{
+  var id = request.params.id;
+  var body = _.pick(request.body, ['text', 'completed']);
 
+  var id = request.params.id;
+
+  // validate the id (404 if not) - NB return for program flow only
+  if (!ObjectID.isValid(id))
+  {
+    console.log(`Invalid ID ${id}`);
+    return response.status(404).send();
+  }
+
+  if (_.isBoolean(body.completed) && body.completed)
+  {
+    body.completedAt = new Date().getTime();
+  }
+  else
+  {
+    body.completed = false;
+    body.completedAt = null;
+  }
+  // $set mongodb operator - body already provided in code above
+  Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) =>
+  {
+      if (!todo)
+      {
+        return response.status(404).send();
+      }
+      response.send({todo});
+  }).catch((error) =>
+  {
+    response.status(400).send();
+  });
+});
 
 
 app.listen(port, () =>
