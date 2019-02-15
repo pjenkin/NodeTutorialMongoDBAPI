@@ -17,6 +17,12 @@ var token =
   // salted hash (somesecret) for checking
 }
 
+// fraud attempt without 'somesecret' salting
+token.data.id = 5;
+token.hash = SHA256(JSON.stringify(token.data)).toString()
+
+
+
 var resultHash = SHA256(JSON.stringify(token.data) + 'somesecret') .toString();
 
 if (resultHash === token.hash)
