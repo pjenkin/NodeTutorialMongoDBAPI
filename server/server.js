@@ -189,16 +189,27 @@ app.post('/users',(request, response) =>    // POST for todos
 
   var user = new User(body);    // abbreviated constructor argument to properties
 
-  user.save().then((document) =>
+  // user.save().then((document) =>
+  user.save().then(() =>
   { // success/resolve
-    response.send(document);    // send the whole new mongodb document/record back
+    return user.generateAuthToken();
+    // response.send(document);    // send the whole new mongodb document/record back
     console.log(`added user ${user.email}`);
   },
   (error) =>
   {   // error/reject
     response.status(400).send(error);
   }
-  );
+)
+.then( (token) =>
+{
+  response.header('x-auth').send(user);     // send user back in HTTP header
+})
+.catch ((error) =>
+{
+  response.status(400).send(error);
+})
+;
 });   // end of /users POST route
 
 
