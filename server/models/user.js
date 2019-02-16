@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');   // const not really better than var for require
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
+const _ = require('lodash');
 
 var UserSchema = new mongoose.Schema(
   {
@@ -48,6 +49,18 @@ var UserSchema = new mongoose.Schema(
 
 mongoose.set('useCreateIndex',true);    // https://github.com/Automattic/mongoose/issues/6890
 
+
+// existing instance method over-ridden
+// restrict HTTP response body contents to only id and email fields/properties/objects
+UserSchema.methods.toJSON = function ()
+{
+  var user = this;
+  var userObject = user.toObject();   // mongoose user object -> normal ObjectID
+
+  return _.pick(userObject, ['_id','email']);
+};
+
+
 // instance (not model) method added
 // UserSchema is an object (instance methods will have access to hashing properties)
 // (arrow functions don't bind this (needed here),...
@@ -65,7 +78,7 @@ UserSchema.methods.generateAuthToken = function ()
     return token;
     // return only a value rather than promise (tho' will be passed as succes argument in next chain-then in server.js)
   });
-}
+};
 
 var User = mongoose.model('User', UserSchema);
 
