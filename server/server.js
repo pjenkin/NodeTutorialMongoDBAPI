@@ -203,7 +203,7 @@ app.post('/users',(request, response) =>    // POST for todos
 )
 .then( (token) =>
 {
-  response.header('x-auth').send(user);     // send user back in HTTP header
+  response.header('x-auth', token).send(user);     // send user back in HTTP header
 })
 .catch ((error) =>
 {
