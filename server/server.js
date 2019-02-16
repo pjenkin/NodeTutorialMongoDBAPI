@@ -187,13 +187,7 @@ app.post('/users',(request, response) =>    // POST for todos
   // use lodash pick to ensure only correct fields/parameters/properties taken from POST
   var body = _.pick(request.body, ['email', 'password']);
 
-  // var user = new User(
-  //   {
-  //     email: body.email,
-  //     password: body.password
-  //   });
-
-  var user = new User(body);
+  var user = new User(body);    // abbreviated constructor argument to properties
 
   user.save().then((document) =>
   { // success/resolve

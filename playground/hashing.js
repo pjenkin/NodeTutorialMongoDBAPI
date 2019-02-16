@@ -10,6 +10,12 @@ var data =
 var token = jwt.sign(data, '123abc');
 console.log(token);
 
+// see in jwt.io
+
+// var decoded = jwt.verify(token + '1', '123abc');   // resulted in invalid signature error
+var decoded = jwt.verify(token, '123abc');
+console.log(decoded);
+
 
 /*
 var message = 'I am not a number!';
