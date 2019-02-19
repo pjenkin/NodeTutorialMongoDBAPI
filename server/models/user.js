@@ -80,6 +80,45 @@ UserSchema.methods.generateAuthToken = function ()
   });
 };
 
+// model method (not instance method) - NB statics
+UserSchema.statics.findByToken = function (token)
+{
+  var User = this;
+  var decoded;      // undefined
+
+  try
+  {
+    decoded = jwt.verify(token, 'abc123');     // secret hard conded but will be in config
+  }
+  catch (error)
+  {
+    console.log('some error decoding JWT');
+    // return new Promise((resolve,reject) =>
+    // {
+    //   reject();   // since error, rejected Promise returned, so enclosing 'then' success (in server.js) never used
+    // });
+    // simplification of above
+    // return Promise.reject();    // could have returned reject value; would have been error caught in enclosing code
+    return Promise.reject().catch(error => {console.log('caught decoding findByToken reject error',error);});
+    // could have returned reject value; would have been error caught in enclosing code -
+    // NB need to catch rejection error
+  }
+
+  // find a user whose properties are matching those in the HTTP response's x-auth header (JWT, now decoded)
+  return User.findOne({
+    // _id: decoded._id,
+    '_id': decoded._id,          /* just for consistency, use quotes around property even without dot reference */
+    'tokens.token': token,      /* nested property reference in quotes - cf User model structure */
+    'tokens.access': 'auth'
+  }).catch((error) =>
+  {
+    response.status(401).send();  // 401 unauthoriz(s)ed
+  });
+
+};
+
+
+
 var User = mongoose.model('User', UserSchema);
 
 module.exports = {User};
