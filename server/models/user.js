@@ -2,6 +2,7 @@ const mongoose = require('mongoose');   // const not really better than var for 
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
+const bcrypt = require('bcryptjs');
 
 var UserSchema = new mongoose.Schema(
   {
@@ -117,6 +118,35 @@ UserSchema.statics.findByToken = function (token)
 
 };
 
+// mongoose middleware before saving
+// hash password from model and over-write before saving to db
+UserSchema.pre('save', function (next)
+{
+  var user = this;    // needed this - hence not arrow function syntax
+
+  if (user.isModified('password'))     // prevent accidental re-hashing
+  {
+    console.log('trying to hash password ', user.password);
+    bcrypt.genSalt(10, (error,salt) =>
+    {
+      bcrypt.hash(user.password, salt, (error, hash) =>
+      {
+        console.log(hash);
+        user.password = hash;
+        // user.password = 'rubbish';
+        next();
+      });
+    });
+     // user.password = bcrypt.hashSync(password,genSaltSync(10));
+// get user.password // user.password = hash
+// call gensalt, call hash, inside callback for hash,  set user properties
+  }
+  else
+  {
+    next();
+  }
+
+});
 
 
 var User = mongoose.model('User', UserSchema);

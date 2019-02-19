@@ -21,7 +21,6 @@ bcrypt.genSaltSync(10, (error, salt) =>
     // console.log(hash === '$2a$10$V5JEcqTLsoTXcBZ3ZUy1hOJKvGDVTS5m47klYQY1LYdYMlcS8vvfG');
     // console.log(hash.length);
     console.log('hash: ', hash);
-    result = hash;
   });
 });
 // );

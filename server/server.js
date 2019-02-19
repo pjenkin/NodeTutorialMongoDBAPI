@@ -199,7 +199,13 @@ app.post('/users',(request, response) =>    // POST for todos
   },
   (error) =>
   {   // error/reject
-    response.status(400).send(error);
+    //response.status(400).send(error);
+    // temporarily REM out this 19/2/19 for 400  -
+    // (node:3272) UnhandledPromiseRejectionWarning: Error: Can't set headers after they are sent.
+    // only send 1 response per HTTP request https://stackoverflow.com/a/36728968
+    // try bubbling up error with a throw
+    console.log('trying to throw user post error ', error.message);
+    throw new Error(error);               // added to try to throw error to send drekly
   }
 )
 .then( (token) =>
@@ -208,6 +214,7 @@ app.post('/users',(request, response) =>    // POST for todos
 })
 .catch ((error) =>
 {
+  console.log('error caught in sending x-auth token', error.message);
   response.status(400).send(error);
 })
 ;
