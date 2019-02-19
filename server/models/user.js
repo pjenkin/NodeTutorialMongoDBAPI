@@ -118,6 +118,7 @@ UserSchema.statics.findByToken = function (token)
 
 };
 
+/*
 // mongoose middleware before saving
 // hash password from model and over-write before saving to db
 UserSchema.pre('save', function (next)
@@ -145,8 +146,46 @@ UserSchema.pre('save', function (next)
   {
     next();
   }
-
 });
+*/
+
+UserSchema.pre('save', function () {
+  return new Promise((resolve, reject) =>
+  {
+    var user = this;
+    var errorMessage = {message: 'Unable to save user details'};
+    if (user.isModified('password'))
+    {
+      bcrypt.genSalt(10, (error, salt) =>
+      {
+          if (error)
+          {
+            return reject(errorMessage);
+          }
+          bcrypt.hash(user.password, salt, (error, hash) =>
+          {
+            if (error)
+            {
+              return reject(errorMessage);
+            }
+            bcrypt.hash(user.password, salt, (error, hash) =>
+            {
+              if (error)
+              {
+                return reject(errorMessage);
+              }
+              console.log('got there');
+              user.password = hash;
+              resolve();    // successful fulfilment of promise
+            });
+
+          });
+
+      });
+    }
+  });
+});
+
 
 
 var User = mongoose.model('User', UserSchema);
