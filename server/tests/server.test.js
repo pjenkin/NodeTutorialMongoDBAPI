@@ -4,11 +4,13 @@ const request = require('supertest');
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
 const {ObjectID} = require('mongodb');
-const {seedTodos, populateTodos} = require('./seed/seed');
+const {seedTodos, populateTodos, seedUsers, populateUsers} = require('./seed/seed');
 
 
+beforeEach(populateUsers);
 // delete all collection's documents/records to facilitate document/record counting test
 beforeEach(populateTodos);
+
 
 
 describe('POST /todos', () =>
