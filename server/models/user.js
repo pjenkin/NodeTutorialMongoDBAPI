@@ -149,6 +149,8 @@ UserSchema.pre('save', function (next)
 });
 
 /*
+// https://www.udemy.com/the-complete-nodejs-developer-course-2/learn/v4/questions/6256840
+
 UserSchema.pre('save', function () {
   return new Promise((resolve, reject) =>
   {
