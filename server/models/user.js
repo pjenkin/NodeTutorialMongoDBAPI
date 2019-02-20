@@ -118,7 +118,7 @@ UserSchema.statics.findByToken = function (token)
 
 };
 
-/*
+
 // mongoose middleware before saving
 // hash password from model and over-write before saving to db
 UserSchema.pre('save', function (next)
@@ -147,8 +147,8 @@ UserSchema.pre('save', function (next)
     next();
   }
 });
-*/
 
+/*
 UserSchema.pre('save', function () {
   return new Promise((resolve, reject) =>
   {
@@ -185,7 +185,7 @@ UserSchema.pre('save', function () {
     }
   });
 });
-
+*/
 
 
 var User = mongoose.model('User', UserSchema);
