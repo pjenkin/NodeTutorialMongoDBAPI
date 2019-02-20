@@ -4,33 +4,11 @@ const request = require('supertest');
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
 const {ObjectID} = require('mongodb');
+const {seedTodos, populateTodos} = require('./seed/seed');
 
-const seedTodos = [
-  {
-    _id: new ObjectID(),
-    text: 'First text todo'
-  },
-  {
-    _id: new ObjectID(),
-    text: 'Second text todo',
-    completed: true,
-    completedAt: 1000
-  }
-]
 
 // delete all collection's documents/records to facilitate document/record counting test
-beforeEach((done) =>
-{
-  // NB: delete all documents/records in Todo
-  // Todo.remove({}).then(()=> done());
-  // Todo.deleteMany({}).then(()=> done());
-  Todo.deleteMany({}).then(()=>
-  {
-      return Todo.insertMany(seedTodos);    // return response to enable chaining of callbacks
-  })
-  .then(() => done());
-  // only move on to test when done
-});
+beforeEach(populateTodos);
 
 
 describe('POST /todos', () =>
