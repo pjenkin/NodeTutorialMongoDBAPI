@@ -352,3 +352,39 @@ describe('GET /users/me', () =>
       .end(done);
   });
 });
+
+describe('/POST /users', () =>
+{
+  it('should create a user', (done) =>
+  {
+    var email = 'examplepj@example.com';
+    var password = 'abc321!';
+
+    request(app)
+    .post('/users')
+    .send({email, password})
+    .expect(200)
+    .expect((response) =>
+    {
+      // non-dot notation ['x-auth'] as hyphen wouldn't work
+      // expect(response.headers['x-auth']).toExist();
+      expect(response.headers['x-auth']).toBeTruthy();
+      // expect(response.body._id).toExist();
+      expect(response.body._id).toBeTruthy();
+      expect(response.body.email).toBe(email);
+    })
+    .end(done);
+  });
+
+  it('should return validation errors if request is invalid (eg email invalid)', (done) =>
+  {
+
+  });
+
+  it('should not create user if email in use already', (done) =>
+  {
+
+  });
+
+
+});
