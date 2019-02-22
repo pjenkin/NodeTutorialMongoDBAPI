@@ -438,7 +438,7 @@ describe('POST /users/login', () =>
     expect(200)
     .expect ((response) =>
     {
-      expect(response.headers['x-auth']).toBeTruthy()
+      expect(response.headers['x-auth']).toBeTruthy();   // NB toExist deprecated
     })
     .end((error, response) =>
     {
@@ -449,7 +449,7 @@ describe('POST /users/login', () =>
 
         User.findById(seedUsers[1]._id).then((user) =>
         {
-          // expect(user.tokens[0]).toInclude({   // https://stackoverflow.com/a/51146788
+          // expect(user.tokens[0]).toInclude({   // toInclude is deprecated https://stackoverflow.com/a/51146788
           expect(user.tokens[0]).toMatchObject({
             access: 'auth',
             token: response.headers['x-auth']
@@ -461,6 +461,34 @@ describe('POST /users/login', () =>
 
   it ('should reject invalid login', (done) =>
   {
+    // challenge 400, toBeFalsy, user.tokens length should still be zero
 
+    request(app)
+    .post('/users/login')
+    .send(
+      {
+        email: seedUsers[1].email,
+        password: seedUsers[1].password + 'helloPNJ',
+      }
+    ).
+    expect(400)
+    .expect ((response) =>
+    {
+      expect(response.headers['x-auth']).toBeFalsy();   // NB toExist / toNotExist deprecated
+    })
+    .end((error, response) =>
+    {
+        if (error)
+        {
+          return done(error);
+        }
+
+        User.findById(seedUsers[1]._id).then((user) =>
+        {
+          // expect(user.tokens[0]).toInclude({   // toInclude is deprecated https://stackoverflow.com/a/51146788
+          expect(user.tokens.length).toEqual(0);
+          done();
+        }).catch((error) => done(error));
+    })
   });
 });  // end of describe('POST /users/login'
