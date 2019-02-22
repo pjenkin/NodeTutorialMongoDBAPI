@@ -341,6 +341,14 @@ describe('GET /users/me', () =>
 
   it('should return a 401 if not authenticated', (done) =>
   {
-
+      // challenge 8-94 (1) body empty toEqual (2) 401 returned (not authenticated)
+      request(app)
+      .get('/users/me')
+      .expect(401)
+      .expect((response) =>
+      {
+        expect(response.body).toEqual({});
+      })
+      .end(done);
   });
 });
