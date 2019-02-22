@@ -68,7 +68,7 @@ app.get('/todos', authenticate, (request, response) =>    // GET for todos
 // NB at this time http://localhost:3000/todos/ responds with all documents/records
 
 // GET /todos/1234    :id - url parameter (request params) e.g. http://localhost:3000/todos/987
-app.get('/todos/:id', (request, response) =>
+app.get('/todos/:id', authenticate, (request, response) =>
 {
   //response.send(request.params.id);    // to test in Postman with http://localhost:3000/todos/987
   var id = request.params.id;
@@ -80,8 +80,9 @@ app.get('/todos/:id', (request, response) =>
     return response.status(404).send();
   }
 
-
-  Todo.findById(id).then((todo) =>
+  Todo.findById({_id: id, _creator: request.user._id}).then((todo) =>
+  // oops, 'authenticate' middleware will provide access to request.user
+  // Todo.findById({_id: id, _creator: request.params._id}).then((todo) =>
   {
     // (2)(a) if no record, status 404 & send empty
     if (!todo)
@@ -103,7 +104,7 @@ app.get('/todos/:id', (request, response) =>
 
 
 
-app.delete('/todos/:id', (request, response) =>
+app.delete('/todos/:id', authenticate, (request, response) =>
 {
     // get the id
     // validate the id (404 if not)
@@ -117,7 +118,12 @@ app.delete('/todos/:id', (request, response) =>
       return response.status(404).send();
     }
 
-    Todo.findByIdAndDelete(id).then((todo) =>
+    // Todo.findByIdAndDelete(id).then((todo) =>
+    Todo.findOneAndRemove(
+    {
+      _id: id,
+      _creator: request.user._id
+    }).then((todo) =>
   {
     // (1) success (a) no doc: 400 & empty body - NB return for program flow only
     if (!todo)
@@ -142,14 +148,13 @@ app.delete('/todos/:id', (request, response) =>
 });   // end of delete /todos/:id
 
 
-
+// challenge 8-100 - make route private: (1) 'authenticate' middleware, (2) query alter (3) test alter
 // PATCH route to change only specific parameters, as included in the body of the PATCH request
-app.patch('/todos/:id', (request, response) =>
+app.patch('/todos/:id', authenticate, (request, response) =>
 {
   var id = request.params.id;
   var body = _.pick(request.body, ['text', 'completed']);
   // pick only applicable parameters from request body
-
   var id = request.params.id;
 
   // validate the id (404 if not) - NB return for program flow only
@@ -168,14 +173,17 @@ app.patch('/todos/:id', (request, response) =>
     body.completed = false;
     body.completedAt = null;
   }
+
   // $set mongodb operator - body already provided in code above
   // DeprecationWarning: collection.findAndModify is deprecated. Use findOneAndUpdate, findOneAndReplace or findOneAndDelete instead.
   // https://github.com/Automattic/mongoose/issues/6880
-  Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) =>
+  // Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) =>
+  Todo.findOneAndUpdate({_id:id, _creator: request.user._id}, {$set: body}, {new: true}).then((todo) =>
   // Todo.findOneAndUpdate({_id:new ObjectID(id)}, {$set: body}, {new: true}).then((todo) =>
   {
       if (!todo)
       {
+        console.log('todo not found');
         return response.status(404).send();
       }
       response.send({todo});

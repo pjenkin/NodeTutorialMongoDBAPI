@@ -21,6 +21,7 @@ describe('POST /todos', () =>
 
       request(app)
       .post('/todos')   // POST allowing data to be sent with the request (viz GET)
+      .set('x-auth', seedUsers[0].tokens[0].token)    // use user's logon JWT in x-auth header
       .send(
         {               // object converted to JSON by supertest
           text
@@ -76,6 +77,7 @@ describe('POST /todos', () =>
     var emptyText = '';
     request(app)
     .post('/todos')
+    .set('x-auth', seedUsers[0].tokens[0].token)    // use user's logon JWT in x-auth header
     .send(
       {
         text: emptyText   // send a blank string - this should be not accepted
@@ -113,10 +115,11 @@ describe('GET /todos', () =>
   {
     request(app)    // express
     .get('/todos')
+    .set('x-auth', seedUsers[0].tokens[0].token)    // use user's logon JWT in x-auth header
     .expect(200)    // should be ok
     .expect((response) =>
     {
-      expect(response.body.todos.length).toBe(2);   // just the 2 added as seed
+      expect(response.body.todos.length).toBe(1);   // just the 1 added as seed by this seed user
     })
     .end(done);     // nothing ansynchronous being done for end to handle
   });
@@ -130,11 +133,24 @@ it('should return todo document', (done) =>
 // console.log(seedTodos[0]._id)  ;
   request(app)
   .get(`/todos/${seedTodos[0]._id.toHexString()}`)    // NB don't include ':id' (e.g.) in url
+  .set('x-auth', seedUsers[0].tokens[0].token)    // use user's logon JWT in x-auth header
   .expect(200)
   .expect((response) =>
   {
     expect(response.body.todo.text).toBe(seedTodos[0].text);
   })
+  .end(done);
+});
+
+// 8-100 - additional test to check todo by user A inaccessible to user B
+it('should not return todo document created by another user', (done) =>
+{
+// console.log(JSON.stringify(seedTodos[0]))  ;
+// console.log(seedTodos[0]._id)  ;
+  request(app)
+  .get(`/todos/${seedTodos[1]._id.toHexString()}`)    // try to access todo not from this user  - NB don't include ':id' (e.g.) in url
+  .set('x-auth', seedUsers[0].tokens[0].token)    // use user's logon JWT in x-auth header
+  .expect(200)
   .end(done);
 });
 
@@ -150,6 +166,7 @@ it('should return todo document', (done) =>
       // .get(`/todos/${   seedTodos[0]._id.toHexString()}`)
       //.get(`/todos/${ randomId}`)
       .get(`/todos/${hexId}`)
+      .set('x-auth', seedUsers[0].tokens[0].token)    // use user's logon JWT in x-auth header
       .expect(404)        // should get 400?
       .end(done);
   });
@@ -159,6 +176,7 @@ it('should return todo document', (done) =>
     // (2) /todos/123
     request(app)
     .get('/todos/123')    // obviously invalid id 1234
+    .set('x-auth', seedUsers[0].tokens[0].token)    // use user's logon JWT in x-auth header
     .expect(404)
     .end(done);
   });
@@ -167,10 +185,11 @@ it('should return todo document', (done) =>
 describe('DELETE /todos/:id', ()=> {
   it('should remove a todo', (done) =>
   {
-      var hexId = seedTodos[0]._id.toHexString();
+      var hexId = seedTodos[1]._id.toHexString();
 
       request(app)
       .delete(`/todos/${hexId}`)
+      .set('x-auth', seedUsers[1].tokens[0].token)    // use user's logon JWT in x-auth header
       .expect(200)    // known to exist in seed data
       .expect( (response) =>
       {
@@ -198,6 +217,42 @@ describe('DELETE /todos/:id', ()=> {
       // end() is called with (error, response)
 
   });
+
+
+  it('should not remove a todo by another user', (done) =>
+  {
+      var hexId = seedTodos[0]._id.toHexString();
+
+      request(app)
+      .delete(`/todos/${hexId}`)
+      .set('x-auth', seedUsers[1].tokens[0].token)    // use user's logon JWT in x-auth header
+      .expect(404)    // known to exist in seed data
+      .end((error, response) =>
+      {
+        if (error)
+        {
+          return done(error);
+        }
+
+        // challenge 7-83
+        // check that record has been deleted - i.e. no longer existing
+        // findById(hexId) query - should fail - todo in then call does not exist (expect(todo).toNotExist) - (2) catch for error, pass to done
+
+        Todo.findById(hexId).then((todo) =>
+        // Todo.find({_id:hexId}).then((todo) =>
+        {   // just success at the mo in this query for this assertion
+          // expect(todo).toNotExist();
+          expect(todo).toBeTruthy();       // https://github.com/mjackson/expect/issues/238#issuecomment-417936839
+          done();                         // if it's got this far, this (it('should not remove a todo by another user') is fair 'nuff done
+        }).catch((error) => done(error));
+      });
+
+      // end() is called with (error, response)
+
+  });
+
+
+
 /*
   it('should return 404 if todo document not found' ,() =>
   {
@@ -216,6 +271,7 @@ describe('DELETE /todos/:id', ()=> {
       // .get(`/todos/${   seedTodos[0]._id.toHexString()}`)
       //.get(`/todos/${ randomId}`)
       .delete(`/todos/${hexId}`)
+      .set('x-auth', seedUsers[1].tokens[0].token)    // use user's logon JWT in x-auth header
       .expect(404)        // should get 400?
       .end(done);
   });
@@ -233,6 +289,7 @@ describe('DELETE /todos/:id', ()=> {
     // (2) /todos/123
     request(app)
     .delete('/todos/123')    // obviously invalid id 1234
+    .set('x-auth', seedUsers[1].tokens[0].token)    // use user's logon JWT in x-auth header
     .expect(404)
     .end(done);
   });
@@ -254,6 +311,7 @@ describe('PATCH /todos/:id', () =>
       // (2) text is changed correctly, (3) completed is true (4) completedAt is a number
       request(app)
       .patch(`/todos/${seedTodos[0]._id.toHexString()}`)    // NB don't include ':id' (e.g.) in url
+      .set('x-auth', seedUsers[0].tokens[0].token)    // use user's logon JWT in x-auth header
       .send({
         "text": firstTestText,
         "completed": true
@@ -269,6 +327,30 @@ describe('PATCH /todos/:id', () =>
 
   });
 
+
+  it('should not update another user\'s todo',(done) =>
+  {
+      var firstTestText = '1st PATCH test text';
+      var secondTestText = '2nd PATCH test text';
+
+      // get 1st item ID
+      // update text to something, set completed using patch
+      // assert: (1) 200 response
+      // (2) text is changed correctly, (3) completed is true (4) completedAt is a number
+      request(app)
+      .patch(`/todos/${seedTodos[0]._id.toHexString()}`)    // NB don't include ':id' (e.g.) in url
+       .set('x-auth', seedUsers[1].tokens[0].token)    // use as other user's logon JWT in x-auth header
+      .send({
+        "text": secondTestText,
+        "completed": true
+      })    // hard to find documention on superagent PATCH syntax
+      .expect(404)    // puzzling - why a 404 not found and not a 401 unauthorised ? https://www.udemy.com/the-complete-nodejs-developer-course-2/learn/v4/questions/4888830
+      .end(done);
+
+  });
+
+
+
   it('should clear completedAt if/when todo is not completed', (done) =>
   {
     var secondTestText = '(guess what) 2nd PATCH test text';
@@ -278,6 +360,7 @@ describe('PATCH /todos/:id', () =>
     // (2) completedAt is null (toNotExist/toBeFalsy)
     request(app)
     .patch(`/todos/${seedTodos[1]._id.toHexString()}`)    // NB don't include ':id' (e.g.) in url
+    .set('x-auth', seedUsers[1].tokens[0].token)    // use user's logon JWT in x-auth header
     .send({
       "text": secondTestText,
       "completed": false
@@ -303,23 +386,11 @@ describe('PATCH /todos/:id', () =>
       // .get(`/todos/${   seedTodos[0]._id.toHexString()}`)
       //.get(`/todos/${ randomId}`)
       .patch(`/todos/${hexId}`)
+      .set('x-auth', seedUsers[1].tokens[0].token)    // use user's logon JWT in x-auth header
       .expect(404)        // should get 400?
       .end(done);
   });
 
-  it('should return 404 if todo not found', (done) =>
-  {
-      // (1) new ObjectID with toHexString
-      // ensure 404 received
-      var hexId = new ObjectID().toHexString();
-
-      request(app)
-      // .get(`/todos/${   seedTodos[0]._id.toHexString()}`)
-      //.get(`/todos/${ randomId}`)
-      .delete(`/todos/${hexId}`)
-      .expect(404)        // should get 400?
-      .end(done);
-  });
 
 });   // end of describe('PATCH /todos/:id'
 
@@ -450,7 +521,7 @@ describe('POST /users/login', () =>
         User.findById(seedUsers[1]._id).then((user) =>
         {
           // expect(user.tokens[0]).toInclude({   // toInclude is deprecated https://stackoverflow.com/a/51146788
-          expect(user.tokens[0]).toMatchObject({
+          expect(user.tokens[1]).toMatchObject({    // with private/user-specific routes, 2nd seed user will get 2nd seed todo
             access: 'auth',
             token: response.headers['x-auth']
           });
@@ -486,7 +557,7 @@ describe('POST /users/login', () =>
         User.findById(seedUsers[1]._id).then((user) =>
         {
           // expect(user.tokens[0]).toInclude({   // toInclude is deprecated https://stackoverflow.com/a/51146788
-          expect(user.tokens.length).toEqual(0);
+          expect(user.tokens.length).toEqual(1);
           done();
         }).catch((error) => done(error));
     });
@@ -518,4 +589,20 @@ describe('DELETE /users/me/token', () =>
       ).catch((error) => done(error));
     })
   });
+
+  it('should return 404 if todo not found', (done) =>
+  {
+      // (1) new ObjectID with toHexString
+      // ensure 404 received
+      var hexId = new ObjectID().toHexString();
+
+      request(app)
+      // .get(`/todos/${   seedTodos[0]._id.toHexString()}`)
+      //.get(`/todos/${ randomId}`)
+      .delete(`/todos/${hexId}`)
+      .set('x-auth', seedUsers[1].tokens[0].token)    // use user's logon JWT in x-auth header
+      .expect(404)        // should get 400?
+      .end(done);
+  });
+
 });   // end of describe('DELETE /users/me/token'

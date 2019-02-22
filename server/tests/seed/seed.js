@@ -20,7 +20,11 @@ const seedUsers = [
    {
      _id: secondUserID,
      email: 'stinky@example.com',
-     password: 'passwordb'
+     password: 'passwordb',
+     tokens: [{
+       access: 'auth',
+       token: jwt.sign({_id: secondUserID, access: 'auth'}, 'abc123').toString()
+     }]
    }
  ];
 
@@ -35,7 +39,7 @@ const seedTodos = [
     text: 'Second text todo',
     completed: true,
     completedAt: 1000,
-    creator: firstUserID
+    _creator: secondUserID
   }
 ];
 
