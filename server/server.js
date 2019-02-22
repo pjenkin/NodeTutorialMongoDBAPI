@@ -277,6 +277,25 @@ app.post('/users/login', (request, response) =>
 });
 
 
+// logout by removing JWT tokens from token array/db property of user object / db document
+// specify middleware as 'authenticate' (must surely be logged in to log out)
+app.delete('/users/me/token', authenticate, (request, response) =>
+{
+  // user instance method removeToken
+  request.user.removeToken(request.token).then( () =>
+  {
+    response.status(200).send();
+  },
+  // in case of error(s)
+  () =>
+  {
+    response.status(400).send();
+  }
+)
+});
+
+
+
 
 app.listen(port, () =>
 {

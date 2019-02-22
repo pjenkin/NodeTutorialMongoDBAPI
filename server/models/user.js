@@ -81,6 +81,28 @@ UserSchema.methods.generateAuthToken = function ()
   });
 };
 
+// .methods for a new instance method
+// to log out a user by removing JWT token from tokens property
+UserSchema.methods.removeToken = function (token)
+{
+  // mongodb operator
+  var user = this;    // NB instance method so user not User
+
+  // pass in the updates object, using mongodb operator $pull (like query, with parameters)
+  return user.update(
+    {
+      $pull:
+      {
+        tokens: {token}
+        // {
+          // token: token
+        // }
+      }
+    }
+  );
+};
+
+
 // model method (not instance method) - NB statics
 UserSchema.statics.findByToken = function (token)
 {
