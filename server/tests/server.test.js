@@ -322,3 +322,25 @@ describe('PATCH /todos/:id', () =>
   });
 
 });   // end of describe('PATCH /todos/:id'
+
+describe('GET /users/me', () =>
+{
+  it('should return user if authenticated', (done) =>
+  {
+      request(app)
+      .get('/users/me')
+      .set('x-auth', seedUsers[0].tokens[0].token)
+      .expect(200)
+      .expect((response) =>
+      {
+        expect(response.body._id).toBe(seedUsers[0]._id.toHexString());
+        expect(response.body.email).toBe(seedUsers[0].email);
+      })
+      .end(done);
+  });
+
+  it('should return a 401 if not authenticated', (done) =>
+  {
+
+  });
+});
