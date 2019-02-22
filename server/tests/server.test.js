@@ -5,7 +5,7 @@ const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
 const {ObjectID} = require('mongodb');
 const {seedTodos, populateTodos, seedUsers, populateUsers} = require('./seed/seed');
-
+const {User} = require('./../models/user');
 
 beforeEach(populateUsers);
 // delete all collection's documents/records to facilitate document/record counting test
@@ -373,7 +373,24 @@ describe('/POST /users', () =>
       expect(response.body._id).toBeTruthy();
       expect(response.body.email).toBe(email);
     })
-    .end(done);
+    //.end(done);
+    // custom
+    .end((error) =>
+    {
+      if (error)
+      {
+        return done(error);
+      }
+      // further testing that new user data saved correctly
+      User.findOne({email}).then((user) =>
+      {
+        // new user should now be added and password should now be hashed not plain text
+        expect(user).toBeTruthy();
+        // expect(user.password).toNotBe(password);   // https://stackoverflow.com/a/28857217
+        expect(user.password).not.toBe(password);
+        done();
+      });
+    });
   });
 
   it('should return validation errors if request is invalid (eg email invalid)', (done) =>
