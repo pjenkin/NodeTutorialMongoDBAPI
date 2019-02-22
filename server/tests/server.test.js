@@ -395,11 +395,30 @@ describe('/POST /users', () =>
 
   it('should return validation errors if request is invalid (eg email invalid)', (done) =>
   {
+      // challenge 8-94 POST invalid email and invalid password - expect 400 response
+      var email = '123456';
+      var password = '';
+
+      request(app)
+      .post('/users')
+      .send({email, password})
+      .expect(400);
+      done();
 
   });
 
   it('should not create user if email in use already', (done) =>
   {
+    // challenge 8-94 use email address already in use - expect 400 response
+
+    var email = 'examplepj@example.com';
+    var password = 'different1';
+
+    request(app)
+    .post('/users')
+    .send({email, password})
+    .expect(400);
+    done();
 
   });
 
