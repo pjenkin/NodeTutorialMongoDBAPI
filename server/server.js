@@ -264,7 +264,11 @@ app.post('/users/login', (request, response) =>
   var body = _.pick(request.body, ['email', 'password']);
 
   User.findByCredentials(body.email, body.password).then((user) => {
-    response.send(user);
+    // response.send(user);
+    user.generateAuthToken().then((token) =>
+    {
+      response.header('x-auth', token).send(user);     // send user back in HTTP header
+    });
   }).catch((error) =>
   {
     response.status(400).send();
