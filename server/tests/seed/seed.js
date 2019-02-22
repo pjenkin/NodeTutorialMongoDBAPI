@@ -27,13 +27,15 @@ const seedUsers = [
 const seedTodos = [
   {
     _id: new ObjectID(),
-    text: 'First text todo'
+    text: 'First text todo',
+    _creator: firstUserID
   },
   {
     _id: new ObjectID(),
     text: 'Second text todo',
     completed: true,
-    completedAt: 1000
+    completedAt: 1000,
+    creator: firstUserID
   }
 ];
 
