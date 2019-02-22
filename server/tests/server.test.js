@@ -389,7 +389,7 @@ describe('/POST /users', () =>
         // expect(user.password).toNotBe(password);   // https://stackoverflow.com/a/28857217
         expect(user.password).not.toBe(password);
         done();
-      });
+      }).catch((error) => done(error));               // ensure that actual error (not timeout) is console-logged
     });
   });
 
@@ -421,6 +421,46 @@ describe('/POST /users', () =>
     done();
 
   });
+});       // end of describe('/POST /users'
 
+describe('POST /users/login', () =>
+{
+  it ('should login user and return auth token', (done) =>
+  {
+    request(app)
+    .post('/users/login')
+    .send(
+      {
+        email: seedUsers[1].email,
+        password: seedUsers[1].password,
+      }
+    ).
+    expect(200)
+    .expect ((response) =>
+    {
+      expect(response.headers['x-auth']).toBeTruthy()
+    })
+    .end((error, response) =>
+    {
+        if (error)
+        {
+          return done(error);
+        }
 
-});
+        User.findById(seedUsers[1]._id).then((user) =>
+        {
+          // expect(user.tokens[0]).toInclude({   // https://stackoverflow.com/a/51146788
+          expect(user.tokens[0]).toMatchObject({
+            access: 'auth',
+            token: response.headers['x-auth']
+          });
+          done();
+        }).catch((error) => done(error));
+    })
+  });
+
+  it ('should reject invalid login', (done) =>
+  {
+
+  });
+});  // end of describe('POST /users/login'
