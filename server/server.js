@@ -24,12 +24,15 @@ var port = process.env.PORT || 3000;    // auto-configuring port
 // middleware
 app.use(bodyParser.json());   // sending JSON to express
 
-app.post('/todos',(request, response) =>    // POST for todos
+// in routes, middleware parameter 'authenticate' (qv) to make private (needing x-auth JWT / login)
+
+app.post('/todos',authenticate, (request, response) =>    // POST for todos
 {
   // console.log(request.body);
   var todo = new Todo(
     {
-      text: request.body.text
+      text: request.body.text,
+      _creator: request.user._id
     });
 
     todo.save().then((document) =>
@@ -44,9 +47,9 @@ app.post('/todos',(request, response) =>    // POST for todos
 });   // end of /todos POST route
 
 
-app.get('/todos', (request, response) =>    // GET for todos
+app.get('/todos', authenticate, (request, response) =>    // GET for todos
 {
-  Todo.find().then(
+  Todo.find({_creator: request.user._id}).then(         // made private (user-specific) by find argument
   (todos) =>
   {
     response.send({todos});     // object rather than array for flexibility in future
