@@ -118,6 +118,44 @@ UserSchema.statics.findByToken = function (token)
 
 };
 
+// model method 8-95
+// using function syntax because (a) this required and (b) arguments passed
+UserSchema.statics.findByCredentials = function (email, password)
+{
+  var User = this;
+
+  // ES 6 email:email - search only on email first (not plain text password yet)
+  return User.findOne({email}).then((user) =>
+  {
+    if (!user)
+    {
+      // will trigger catch
+      return Promise.reject();
+    }
+
+    return new Promise((resolve, reject) =>
+    {
+      // response.send(user);
+      // challenge 8-95 use bcrypt to compare, reject if not same
+      // too tired - I copied this bit from video!
+      bcrypt.compare(password, user.password, (error, result) =>
+      {
+        if (result)
+        {
+          resolve(user);
+        }
+        else
+        {
+          reject();
+        }
+        // if there's no match, reject to throw to any error catching in calling code
+        // if there's a matching hashed password (email already matched), resolve, with this user
+
+      });
+    })
+     // .catch ((error) => {console.log('error caught', error)});
+    });
+};
 
 // mongoose middleware before saving
 // hash password from model and over-write before saving to db
@@ -127,7 +165,7 @@ UserSchema.pre('save', function (next)
 
   if (user.isModified('password'))     // prevent accidental re-hashing
   {
-    console.log('trying to hash password ', user.password);
+    //console.log('trying to hash password ', user.password);
     bcrypt.genSalt(10, (error,salt) =>
     {
       bcrypt.hash(user.password, salt, (error, hash) =>

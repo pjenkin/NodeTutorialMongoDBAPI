@@ -3,6 +3,9 @@ require('./config/config');   // NB no variable/constant
 
 
 const _ = require('lodash');
+/*const {SHA256} = require('crypto-js');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');*/
 
 var {mongoose} = require('./db/mongoose');  // E6 destructuring
 var {Todo} = require('./models/todo');
@@ -250,10 +253,24 @@ app.get('/users/me', authenticate, (request, response) =>
 });
 
 
+// challenge 8-95
+// POST /users/login {email, password}
+// find user with both email and decrypted password matching
+// send body data in response
 
+app.post('/users/login', (request, response) =>
+{
+  // use lodash pick to ensure only correct fields/parameters/properties taken from POST
+  var body = _.pick(request.body, ['email', 'password']);
 
+  User.findByCredentials(body.email, body.password).then((user) => {
+    response.send(user);
+  }).catch((error) =>
+  {
+    response.status(400).send();
+  });     /* catch principally in case no user found */
 
-
+});
 
 
 
