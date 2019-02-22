@@ -489,6 +489,33 @@ describe('POST /users/login', () =>
           expect(user.tokens.length).toEqual(0);
           done();
         }).catch((error) => done(error));
-    })
+    });
   });
 });  // end of describe('POST /users/login'
+
+
+describe('DELETE /users/me/token', () =>
+{
+  // challenge 8-98
+
+  it ('should remove auth token on logout', (done) =>
+  {
+    // challenge: DELETE /users/me/ seed data token
+    // 200 ; findUser this seed data user, token.length==0
+
+
+    request(app)
+    .delete('/users/me/token')
+    .set('x-auth', seedUsers[0].tokens[0].token)
+    .expect(200)
+    .end((error, response) =>
+    {
+      User.findById(seedUsers[0]._id).then((user) =>
+      {
+          expect(user.tokens.length).toEqual(0);
+          done();
+      }
+      ).catch((error) => done(error));
+    })
+  });
+});   // end of describe('DELETE /users/me/token'
