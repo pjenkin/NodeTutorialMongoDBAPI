@@ -78,3 +78,6 @@ typings/
 
 # DynamoDB Local files
 .dynamodb/
+
+# ignore config file (e.g. DTAP environment variables)
+server/config/config.json

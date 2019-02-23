@@ -14,7 +14,8 @@ const seedUsers = [
     password: 'passworda',
     tokens: [{
       access: 'auth',
-      token: jwt.sign({_id: firstUserID, access: 'auth'}, 'abc123').toString()
+      // token: jwt.sign({_id: firstUserID, access: 'auth'}, 'abc123').toString()
+      token: jwt.sign({_id: firstUserID, access: 'auth'}, process.env.JWT_SECRET).toString()
     }]
   },
    {
@@ -23,7 +24,7 @@ const seedUsers = [
      password: 'passwordb',
      tokens: [{
        access: 'auth',
-       token: jwt.sign({_id: secondUserID, access: 'auth'}, 'abc123').toString()
+       token: jwt.sign({_id: secondUserID, access: 'auth'}, process.env.JWT_SECRET).toString()
      }]
    }
  ];
