@@ -1,0 +1,261 @@
+node version major number even if stable
+non-blocking
+modules - require
+definition
+v8
+www.npmjs.com/package/somepackagename
+npm init (to make package.json)
+npm install lodash --save  (to update package.json with dependency, enabling require if not inbuilt module)
+auto restart by installing nodemon 
+command line arguments to node
+yargs for parsing command line arguments
+node inspect xyz.js --someflag - for debugging (also nodemon)
+nodemon myfile.js -e js,hbs    (to watch extensions js and hbs)
+
+wrapper function at start
+list(42) - list +-42 lines in debug
+n - next statement
+c - continue
+repl - read evaluate print loop eg inspect/change variable values
+debugger; - breakpoint (using c)
+
+node --inspect-brk xyz.js   with chrome://inspect/ and Remote Target - Open dedicated DevTools for Node (also node --inspect-brk xyz.js)
+
+yargs .command
+
+--help
+
+arrow function does not bind parent (global this instead) - so ES6 arrow functions can’t be bound to a this keyword, so it will lexically go up a scope, and use the value of this in the scope in which it was defined. https://medium.freecodecamp.org/when-and-why-you-should-use-es6-arrow-functions-and-when-you-shouldnt-3d851d7f0b26 - avoid arrow function if this or arguments needed and use old function () syntax instead
+
+call stack -> Node APIs -> Callback queue 
+^----------Event loop <---|
+
+main() function at base in Call Stack - run at end of outer lexical function's all other pushed/popped functions (implicit return at end)
+callbacks (eg from setTimeout - from a Node API) registered in Node APIs, then into callback queue when ready - callback queue contents run when call stack empty, as notified in event loop
+
+call callbacks from within callbacks - chain then - then for defining a callback (can be arrow function)
+
+Promises (ES6) resolve or reject, .then() can be chained, must have .catch() - call 1 promise from within another's code to achieve chained promise, with .then chained to catch. Promises in separate files ideally.
+
+axios HTTP package allows for Promises (request package didn't)
+
+express package for quick functionality eg app.get('/myroute', (request, response)) =>, and response.send('<p>Hello</p>'), app.use for middleware
+(app)express.listen(3000,() => {console.log('Server on port 3000')});
+response.render('sometemplateInView.hbs');
+response.render('sometemplateInView.hbs', 
+{
+    pageTitle: 'About Page',
+    currentYear: new Date().getFullYear()
+});
+
+app.use(express.static(__dirname + '.public'));		// middleware config static pages' directory
+app.set('view engine','hbs');	//handlebars package config
+
+f12 Network tab 
+
+
+304 keep alive
+
+__dirname in Node wrapper function - directory from which Node command run (other __ is __filename for file from which code executed)
+public folder for public markup &c
+views folder for standard templates (eg .hbs for handlebars)
+hbs.registerpartials(__dirname + '/views/partials');		// /views/partials/footer.hbs
+{{> footer}}
+hbs.registerHelper('getCurrentYear', () => {return new Date.getFullYear()});   // name, function, for {{getCurrentYear}}
+hbs.registerHelper('tooLoud', (text) => {return text.toUpperCase();});		// {{tooLoud welcomeMessage}}
+
+SSH key pair 
+git bash: Enter ls -al ~/.ssh to see if existing SSH keys are present  (should be id_rsa and id_rsa.pub)
+ssh-keygen -t rsa -b 4096 -C 'peternjenkin@gmail.com'
+or Sourcetree/tools/PuTTY
+https://askubuntu.com/a/30792
+SSH agent (x2)
+(1) eval "$(ssh-agent -s)"
+(2) ssh-add ~/.ssh/id_rsa
+Identity added
+github dashboard/settings/SSH and GPG keys/ new SSH key (unique to machine used) - .pub file content used as key (in Win, clip < ~/.ssh/id_rsa.pub to clipboard, or find .pub & copy)
+ssh-rsa sdkjfsdkjsdfsdjhfkjsdnjsdncblahblah== peternjenkin@gmail.com
+check SSH - ssh -T git@github.com
+
+heroku keys:add    then test with ssh -v git@heroku.com
+const port = process.env.PORT || 3000;    app.listen(port, () => { console.log(`Server is up, on port ${port}`); }); 
+package.json "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },  - npm start
+heroku create (makes new 'heroku' as secondary remote for git after 'origin' or 'vsts_origin') then git push heroku or     git push --all heroku (only master branch used by heroku)
+heroku open (opens in browser)  (easy to deploy new code, just by pushing to heroku)
+can add package.json "engines" :{"node":"8.12.0"}
+NB use master branch for heroku
+heroku/app/dashboard/configure add-ons 
+heroku dyno?
+heroku addons:create mongolab:sandbox    (add-on free sandbox plan of mongolab but Oct 18 Mongodb bought mlabs, at Jan 19 payment card verification )
+environment variables by CLI: heroku config:set NAME=PeterJ            heroku config:get NAME               heroku config: unset NAME  heroku config:set JWT_SECRET=dhrf4e998h9nf43r34flwkelk3   heroku config:get MONGODB_URI
+MONGODB_URI string d'contain (1) protocol http://mongodb (2) username:password (until @symbol) (3) URL:port (4) /database name - pastable in parts into Mongo client connection dialogue
+
+heroku alternatives: nanobox, evennode, AWS elastic beanstalk / EC2, cloud 66, openshift, datacol, Google app engine, dokku on digital ocean, back4app, https://www.slant.co/options/11233/alternatives/~heroku-alternatives
+
+mocha mochajs.org  BDD eg const utils = require('./utils');   it('should add two numbers', () =>  {      var result = utils.add(44 , 12);  });
+npm i somedevtestpackage --save-dev     entered in devdependecies in package.json
+foo.js  /  foo.test.js
+edit package.json "scripts":"test" : "mocha **/*.test.js" (any folders, any x.test.js)  cf ASP.NET MVC pp??785tag helpers/js files globbing
+npm test        to run script
+result = myfunc(4) if (result !== 123 throw new Error(`Expected 16 but got ${result}`);  .... but in practice use assertion library instead of thrown error
+nodemon --exec "npm test"       custom package.json script      "test-watch": "nodemon --exec \"npm test\""  then   npm run test-watch  ... edit test files on the fly
+assertion library: expect      npm i expect@1.20.2 --save-dev   const expect = require('expect');     expect(result).toBe(16);
+
+done() callback to enable asynchronous testing in mocha (different for promises)
+supertest for HTTP testing of express (node)  as  (1) export app in server.js (2) var response =require('supertest').app      
+request(app).expect(..............).expect(............) (supertest supplying .expect() method; expect package/library supplying it(),toBeTruthy(),... &c)
+
+status code alteration from response - eg response.status(404) vs   expect(200) cf ASP.NET ch19 Filters
+use expect to make up custom testing for properties/objects in HTTP response body
+
+describe('SomeFunctionality', () => { .......})  describe('#moreDetailed', () => { .......}) blocks in which to group tests
+
+spies - const expect = require('expect') -   var spy = expect.createSpy(); spy();  
+npm i rewire --save-dev   const rewire = require('rewire');   eg var app = rewire('./app');    // rewire would-be imported file - app.__set__  app.__get__    app.__set__var eg var variableWithWhichToReplaceThatThingMaybeSameName = {methodOnWhichToSpy: expect.createSpy()}; app.__set__('thingToReplace',variableWithWhichToReplaceThatThingMaybeSameName);
+
+npm list -g mongoose
+MongoDb
+robo mongo
+mongod --dbpath C:\Users\peter.DESKTOP-3GCVT7E   mongod --version      start server using a directory as endpoint    port 27017
+mongo     command prompt for MongoDB
+db.Todos.insert({text: 'Write some notes'})
+db.Todos.find()		_id - mongodb record GUID
+collections inside db				documents??
+NoSQL Server-db (application)->collection(array-like) (vs SQL table)->document (vs SQL record)->fields/properties(no schema) (vs SQL column/field as per schema) 7-61
+
+npm i node-mongodb-native 
+BinaryJSON - BSON
+npm i mongodb --save       const MongoClient = require('mongodb').MongoClient;    MongoClient.connect('mongodb://localhost:27017/TodoApp', { useNewUrlParser : true }, (error, client) => {....}
+db not actually instantiated by MongoDB until data(documents) added with   db.collection('Todos').insertOne( {key:'someValue'}, (error,result) => {if (error) {return console.log('error')} console.log('insert went ok',JSON.stringify(result.ops, undefined, 2));}
+
+_id ObjectId - default 12 bytes, (4 byte nibble time stamp (UNIX midnight 1/1/1970 milliseconds), 3 bytes machine ID, 2 bytes process ID, 3 byte counter) - _id specifiable as property of new document.
+
+object destructuring (ES6) 7-64  var user = {name: 'P N Jenkin', age:45}; var {name} = user;  // ES6 object destructuring e.g. const {MongoClient, ObjectID} = require('mongodb');
+
+ e.g. db.collection('Users').find({name: 'T Stinkball'}).toArray().then((documents) => {   /* success/fulfilled/resolved*/ console.log('All \'T Stinkball\' entries below:');     console.log(JSON.stringify(documents, undefined, 2));  },  /* error/failed/rejected */     (error) =>  { console.log('Unable to query for T Stinkball', error);  } );
+
+.find   - line of code ???
+
+  db.collection('Todos').deleteMany({text:'eat crowst'}).then((result) =>  { /* only cover sucess/fulfilment for the moment*/  console.log(result);  }); //to find & delete 7-67 (huge result printout with result: { n: 3, ok: 1 } for 3 deletions)
+
+  db.collection('Todos').deleteOne({text: 'eat crowst'}).then((result) =>
+
+  db.collection('Todos').findOneAndDelete({completed: false})  // returns lastErrorObject: { n: 1 },  value: { _id: 5c61962bebad09328ca6821e, text: 'A note of some kind',      completed: false },  ok: 1 
+
+Sharding https://docs.mongodb.com/manual/sharding/
+
+  db.collection('Todos').findOneAndUpdate({_id: new ObjectID('5c629fb376b184008c8e48fd')},   {$set:   /* NB mongodb update operator as an argument */    { completed: true    }}, { returnNewDocument: true   /* option to return updated document/record */  }).then((result) => { /* success only at mo */ console.log (result);  });
+
+$pull mongodb - like a delete query e.g.  return user.update(    {       $pull:       {         tokens: {token}   }    }
+
+npm i mongoose --save    const mongoose = require('mongoose');
+model 
+var Todo = mongoose.model('Todo', {  text:   {    type: String,     required: true,     minlength: 1  },   completed:  {    type: Boolean, default: true   },   completedAt:   {    type: Number  } });
+
+var serveTodo = new Todo({text: 'serve mashed potatoes', completed: false, completedAt: null}); serveTodo.save().then((document) => ........
+
+postman   POST  http://localhost:3000/todos         body/raw/json           eg {
+  "text" :  "this is sent by PNJ from postman"
+}   click Send
+npm i body-parser
+postman New environment/add variable: url:http://localhost:3000  ...or...    url: https://fierce-journey-58532.herokuapp.com/     then, GET url   {{url}}/todos
+postman JWT - GET and in request Headers, key=x-auth, value=JWT string xyz.zyx.zxy
+postman Tests/  (snippets)  e.g. for POST /users var token = postman.getResponseHeader('x-auth');
+postman.setEnvironmentVariable('x-auth', token); /* can then use POST users response'd token in private GET /todos */  e.g. in Headers, for key: x-auth, value: {{x-auth}} /* using code in Tests i.e. {{x-auth}} environment variable has been used */
+Also in postman Test, eg GET /todos/id Test - /* set id in querystring of route to last used id
+*/ var body = JSON.parse(responseBody);
+postman.setEnvironmentVariable('todoId', body._id);    8-103
+postman collections contain requests - create a new collection, add a request then edit request (GET/POST/PATCH &c...) - collection can be exported (...) as a JSON file
+
+
+patch route for updating a record - in Postman, http://localhost:3000/todos/5c65c897a25f1624e4217eb4 (e.g.) PATCH/body/raw/JSON - enter object properties with new value(s) in JSON (patch document) e.g. {
+"text":"this text changed via PATCH request"
+ "completed":false
+}
+
+if (process.env.NODE_ENV === 'production')... some environment variable (paths) found only in Heroku - process is a standard Node.js object
+use config.json e.g. "development": { "PORT": 3000, "MONGODB_URI": "mongodb://localhost:27017/TodoApp", "JWT_SECRET": "dfhereiherh4848r4fhwk" } with  var env = process.env.NODE_ENV || 'development'; var config = require('./config.json'); var envConfig = config[env];                         
+Object.keys(envConfig).forEach((key) => { /* called with each item */ process.env[key] = envConfig[key]; });
+also refer to process.env.JWT_SECRET in code instead of hard-coded hashing secret values
+NB best to .gitignore config files () so an entry of e.g. server/config/config.json - check with git status
+dotenv and env files also usable https://medium.com/@thejasonfile/using-dotenv-package-to-create-environment-variables-33da4ac4ea8f   -  gitignore'd config files can be stored/accessed with 3rd party service e.g. etcd, zookeeper, consul, vaultproject https://coreos.com/etcd/docs/latest/learning/why.html
+
+package.json (Linux or Windows) in "scripts": { blah,     "test": "export NODE_ENV=test || SET \"NODE_ENV=test\" && mocha server/**/*.test.js", blah } also other code
+http://willi.am/node-mocha-supertest/#1
+    "test": "((SET \"NODE_ENV=test\") || (export NODE_ENV=test))  && mocha  --timeout 10000 --exit server/**/*.test.js",
+This d'look for .test.js and then will set the environment variable so as to use the test database (not staging or production), inter alia.
+
+
+npm i validator : email validator library   (mongoose custom validator)   validator.isEmail
+
+npm i crypto-js   SHA256(JSON.stringify(xyzObject)).toString    (for exercises)
+
+hash for comparison - salted hash using secret - used in JSON Web Token - 
+npm i jsonwebtoken --save           .sign(data,secret)       .verify()
+jwt.io   HEADER  {  "alg": "HS256",   "typ": "JWT"}   Payload   {
+  "id": 10,
+  "iat": 1550257772
+}   invalid if secret    algorithm HS256, type (JWT),id (own data), issued at (timestamp) (can be used in code to be expired & force re-login jsonwebtoken has support for expiration jwt.sign({exp: (Date.now() / 1000 + (60 * 60)) )
+local storage / session storage can be used to record JWT for saving JWT on client (for immediate future use)
+
+model methods (User.blah() )/instance methods (user.blah() )  - can create custom methods for model or for instance
+response.header('x-auth', token).send(user);  /* in HTTP response, send JWT token for specific user object in an x-auth header i.e. custom header (e.g for JWT token)  */
+model method: mySchema.statics.myNewFunction = function () { ...........}
+instance method: mySchema.methods.myNewInstanceFunction = function () { ...........}
+
+mongoose nested model properties in quotes eg      '_id': decoded._id,          /* just for consistency, use quotes around property even without dot reference */
+    'tokens.token': token,      /* nested property reference in quotes - cf User model structure */
+    'tokens.access': 'auth'
+
+npm i brcyptjs genSalt(# rounds,salt to use, callback) eg genSalt(10, (error,salt) =>{....}); - pass newly generated salt into callback - adds salt to password before hashing - # rounds with passwords (10-100 eg), longer runtime is good to cut down brute force, 
+bcrypt. genSalt, hash & compare or  bcrypt. genSaltSync, hashSync & compareSync 
+encrypted password before (using middleware to intercept data before being saved to db)
+
+mongoose middleware e.g. scheme.pre('save', function(next) { ....... next();}); to operations before saving (eg hashing password before saving
+Node middleware struggle (pre save)
+positioning of next important - can be possible to use Promise and nested rejects in place of callbacks and next
+
+
+Do you want to request a _feature_ or report a _bug_?
+What is the current behavior?
+If the current behavior is a bug, please provide the steps to reproduce.
+What is the expected behavior?
+Please mention your OS and library version.
+
+firstRecord = myRecord1.save(); secondRecord = myRecord2.save(); Promise.all([firstRecord1,secondRecord2]).then()
+
+
+git diff
+
+500 internal server error usually wonky code
+
+9-106 path module included in Node
+
+socket.io    - web sockets used to send data client <-> server  (back & front end libraries)
+npm i socket.io --save
+module 'express' using built-in Node 'http' module   - const http = require('http');const express = require('express');var app = express();var server = http.createServer(app); var io = socketIO(server);    // can even use express variable as http module argument   - http module somewhat interchangeable with express, so app.listen(port.... --> server.listen(port....  &c &c
+http://localhost:3000/socket.io/socket.io.js  -     <script src="socket.io/socket.io.js"> <!-- (within body?)  -->     <script> io(); </script>   
+ <!-- io variable critical for client<->server comms -->
+events emitted by & listened for client <-> server e.g. new email event (by server) listened for by client or client making message emits event to which for server to listen - persistent client/server comms -  using websocket protocol
+io.on('connection', (socket) => {console.log('new user connected')}); /* polling message in client's network F12 tab if server stopped */
+<script> var socket = io(); socket.on('connect', () => { console.log('Connected to server'); }); </script>
+NB 'connection' and 'connect'/'disconnect'
+use function keyword not arrow functions in socket.io for client cross-browser and mobile compatibility
+NB F5 browser/client to ensure dev code changes loaded
+socket.emit('myCustomEvent', {someData: 'hello', moreData: 789});   - in 'connect' event on client
+socket.on('myCustomEvent', ........);
+
+
+
+
+
+
+
+
+
+
+
+
