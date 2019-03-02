@@ -30,6 +30,8 @@ arrow function does not bind parent (global this instead) - so ES6 arrow functio
 call stack -> Node APIs -> Callback queue 
 ^----------Event loop <---|
 
+/*  block comments used to aid reading  */
+
 main() function at base in Call Stack - run at end of outer lexical function's all other pushed/popped functions (implicit return at end)
 callbacks (eg from setTimeout - from a Node API) registered in Node APIs, then into callback queue when ready - callback queue contents run when call stack empty, as notified in event loop
 
@@ -92,6 +94,8 @@ heroku dyno?
 heroku addons:create mongolab:sandbox    (add-on free sandbox plan of mongolab but Oct 18 Mongodb bought mlabs, at Jan 19 payment card verification )
 environment variables by CLI: heroku config:set NAME=PeterJ            heroku config:get NAME               heroku config: unset NAME  heroku config:set JWT_SECRET=dhrf4e998h9nf43r34flwkelk3   heroku config:get MONGODB_URI
 MONGODB_URI string d'contain (1) protocol http://mongodb (2) username:password (until @symbol) (3) URL:port (4) /database name - pastable in parts into Mongo client connection dialogue
+heroku open
+heroku logs
 
 heroku alternatives: nanobox, evennode, AWS elastic beanstalk / EC2, cloud 66, openshift, datacol, Google app engine, dokku on digital ocean, back4app, https://www.slant.co/options/11233/alternatives/~heroku-alternatives
 
@@ -101,12 +105,15 @@ foo.js  /  foo.test.js
 edit package.json "scripts":"test" : "mocha **/*.test.js" (any folders, any x.test.js)  cf ASP.NET MVC pp??785tag helpers/js files globbing
 npm test        to run script
 result = myfunc(4) if (result !== 123 throw new Error(`Expected 16 but got ${result}`);  .... but in practice use assertion library instead of thrown error
-nodemon --exec "npm test"       custom package.json script      "test-watch": "nodemon --exec \"npm test\""  then   npm run test-watch  ... edit test files on the fly
+nodemon --exec "npm test"       custom package.json script      "test-watch": "nodemon --exec \"npm test\""  then   npm run test-watch  ... edit test files on the fly - might need     npm i nodemon --save-dev     i.e. local not just global
 assertion library: expect      npm i expect@1.20.2 --save-dev   const expect = require('expect');     expect(result).toBe(16);
 
 done() callback to enable asynchronous testing in mocha (different for promises)
 supertest for HTTP testing of express (node)  as  (1) export app in server.js (2) var response =require('supertest').app      
 request(app).expect(..............).expect(............) (supertest supplying .expect() method; expect package/library supplying it(),toBeTruthy(),... &c)
+beforeEach(() => {/* set up data - redone before each expect test */})
+done for asynchronous tests
+
 
 status code alteration from response - eg response.status(404) vs   expect(200) cf ASP.NET ch19 Filters
 use expect to make up custom testing for properties/objects in HTTP response body
@@ -120,6 +127,7 @@ npm list -g mongoose
 MongoDb
 robo mongo
 mongod --dbpath C:\Users\peter.DESKTOP-3GCVT7E   mongod --version      start server using a directory as endpoint    port 27017
+if problems starting, try creating directory c:\data\db (this is a default path for mongodb)
 mongo     command prompt for MongoDB
 db.Todos.insert({text: 'Write some notes'})
 db.Todos.find()		_id - mongodb record GUID
@@ -131,7 +139,7 @@ BinaryJSON - BSON
 npm i mongodb --save       const MongoClient = require('mongodb').MongoClient;    MongoClient.connect('mongodb://localhost:27017/TodoApp', { useNewUrlParser : true }, (error, client) => {....}
 db not actually instantiated by MongoDB until data(documents) added with   db.collection('Todos').insertOne( {key:'someValue'}, (error,result) => {if (error) {return console.log('error')} console.log('insert went ok',JSON.stringify(result.ops, undefined, 2));}
 
-_id ObjectId - default 12 bytes, (4 byte nibble time stamp (UNIX midnight 1/1/1970 milliseconds), 3 bytes machine ID, 2 bytes process ID, 3 byte counter) - _id specifiable as property of new document.
+_id ObjectId - default 12 bytes, (4 byte nibble time stamp (UNIX epoch - midnight 1/1/1970 - milliseconds), 3 bytes machine ID, 2 bytes process ID, 3 byte counter) - _id specifiable as property of new document.
 
 object destructuring (ES6) 7-64  var user = {name: 'P N Jenkin', age:45}; var {name} = user;  // ES6 object destructuring e.g. const {MongoClient, ObjectID} = require('mongodb');
 
@@ -187,7 +195,7 @@ package.json (Linux or Windows) in "scripts": { blah,     "test": "export NODE_E
 http://willi.am/node-mocha-supertest/#1
     "test": "((SET \"NODE_ENV=test\") || (export NODE_ENV=test))  && mocha  --timeout 10000 --exit server/**/*.test.js",
 This d'look for .test.js and then will set the environment variable so as to use the test database (not staging or production), inter alia.
-
+Any glob'd tests are run by mocha rather than node (even though npm test script in package.json) so mocha not require'd in code
 
 npm i validator : email validator library   (mongoose custom validator)   validator.isEmail
 
@@ -247,10 +255,100 @@ use function keyword not arrow functions in socket.io for client cross-browser a
 NB F5 browser/client to ensure dev code changes loaded
 socket.emit('myCustomEvent', {someData: 'hello', moreData: 789});   - in 'connect' event on client
 socket.on('myCustomEvent', ........);
+instance socket.emit to 1 connection, io.emit to every connection
+    socket.broadcast.emit()
+feedback from message - change both listener and emitter callback e.g. on client: socket.emit('createMessage',
+{from: 'PJ', text: 'Hello from client'}, function (feedbackData) { /* callback client side for feedback from message (cf server)*/ console.log('message received on client: ', feedbackData); });   and on server: socket.on('createMessage', (createMessage, callback) => {........  callback('This is acknowledgement feedback from the server');
+
+downloaded production, compressed (min) version of jquery, saved in /public/js/libs    <script src="/js/libs/jquery-3.3.1.min.js"></script> - no npm as front-end (without Webpack or browserify) can't access package code
+Chrome lazy loading prior to actual request
+<form id="message-form"> <input name="message" type="text" placeholder="Type message here" /> <button>Send</button> </form>
+$('#message-form').on('submit',function (event) { event.preventDefault(); console.log('form input default prevented'); /* instead of default, generate/send a message */ socket.emit('createMessage', { from: 'User', text: $('[name=message]').val()    /* value of any element with name 'message' */ }, function () { /* started empty; callback present to fulfil required feedback/ACK/callback signature */ }); });
+
+9-113 14:56
+
+9-114 geolocation API 
+Chrome NB after 50, https only?? or no?   tracker icon to right of address box for resetting location permission
+/* (1) success, and (2) error handler callbacks */ navigator.geolocation.getCurrentPosition(function (position) { console.log(position); latitude: position.coords.latitude, longitude: position.coords.longitude }, // error handler callback function () { alert('Unable to fetch location.'); }); }); /* reusable variable */
 
 
+/* geolocation handling */
+  socket.on('createLocationMessage', (coords) =>  { io.emit('newMessage', generateMessage('Admin',`${coords.latitude}, ${coords.longitude}`)); } );
 
 
+BEM CSS class names convention: Block .btn |  Element __   sub-element  btn__price (price label for button) | Modifier --  btn--big btn--small    https://css-tricks.com/bem-101/
+MDN - Mozilla Developer Network : including javascript info
+no built-in js date natural language formatting
+npm i moment --save   moment http://momentjs.com (display) - date formatting patterns eg MMM for Feb, MMM YYYY for Feb 2019, Do day as ordinal 28th MMM Do YYYY Feb 28th 2019 (US style)  date.add(1, 'year').subtract(3,'month');  console.log(date.format('h:mm a'));   /* NB mm padded minute but not padded hour */    console.log(date.add(32,'minute').format('h:mm a'));
+
+gist
+raw
+tag/branch for versions eg msutache repo, tag: some version, mustache.js, raw 
+
+
+mustache.js (cf handlebars)  Mustache.js (template instead of DOM manipulation)  - need to copy file to a lib folder for front-end use (or refer to CDN from <script> tag)
+e.g. (front-end markup)    <script id="message-template" type="text/template">
+      <!--<p>This bit is a template</p> -->   <li class="message"> <div class="message__title">  <h4>{{from}}</h4> <span>{{createdAt}}</span> </div> <div class="message__body"> </div>     and (front-end js)   socket.on('newMessage', function (newMessage) { /* using mustache template rendering */  let formattedTime = moment (newMessage.createdAt).format('h:mm a'); let template = $('#message-template').html(); let html = Mustache.render(template, { messageText: newMessage.text, from: newMessage.from, createdAt: formattedTime });  $('#messages').append(html); });
+9-118
+Parcel https://www.youtube.com/watch?v=4XB6jcyiADY&t=26s   alternative to webpack for packaging for front-end ??
+
+9-120 clientHeight, scrollTop, scrollHeight (also height of a single item) : 
+jQuery   prop   			let newMessage = messages.children('li:last-child');
+    messages.scrollTop(scrollHeight);
+9-121   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+9-122 Location object (global/window) window.location.search   "?name=PJ&room=node"  querystring
+jQuery.param({name:"PJ", age:45}) in console will return 
+"name=PJ&age=45"    
+links.mead.io/deparam - bitly link to custom library for building object from querystring
+NB URLSearchParams
+
+socket.io has rooms in-built
+socket.join(name)
+
+    /*
+    // example socket comms
+    // io.emit                  // to every connected user
+    // socket.broadcast.emit    // to every connected user except for the user calling
+    // socket.emit          	// to 1 specific user
+
+    // io.to(roomName).emit         // to every both connected and joined to 'room'
+    // socket.to(roomName).emit     // to every both connected and joined to 'room' except user calling
+
+    */
+
+socket.id - can be used to make array of users (e.g. who have joined a 'room')
+
+classes - if with new, upper case initial (convention in js)
+constructor keyword
+class Users {   constructor ()   {     this.users = [];    /* no users at first*/   } 
+addUser (id, name, roomName) { let user = {id, name, room}; this.users.push(user); return user; }}      module.exports = {Users};
+
+http://callbackhell.com/
+https://www.altexsoft.com/blog/engineering/the-good-and-the-bad-of-node-js-web-app-development/
+
+9-125 js array.filter method      let users = this.users.filter((user) => user.roomName === roomName);   or, longer,   { /* return true to keep in array or false to remove from array */  return user.roomName === roomName; });    
+get keyword to bind at run-time  e.g.   get length()  { return this.users.length;   /* constructor d'initialise with empty array (length: 0) */  }  used as per  let user = new User(); let x = user.length;
+
+map:   e.g. let namesArray = users.map((user) => user.name);     /* to get only the name field */
+    
+async/await as addition to promises
+  return new Promise((resolve, reject) => {......});    // promise pattern for async-y stuff
+promise chaining d'need a return at start
+promise chain can give scope problem as chained .then are at same level, so mutually out-of-scope (e.g. need variable from then-1st when dealing with then-2nd - could use variable/let with scope at higher/earlier level to workaround, but... hmm)
+array.reduce d'reduce array to a single value, executing a function on array members in turn left-to-right (e.g. for summing array contents (eg 1 field/property), before division by length for to average)   e.g.             average = grades.map((grade) => grade.grade).reduce((a,b) => (a, b) => {a + b}) / grades.length;
+
+const getStatusAlt = async (userId) => { return 'Mike'; }; will return Promise { 'Mike' } as if resolved  /* async/await will enable writing code in synchronous-like form, without then &c callbacks */ - this promise could be resolved with a .then , or rejected by throw new Error('This is an error for the promise'); and .catch
+async functions will return a promise 
+
+10-131 fixer.io   currencies // http://data.fixer.io/api/latest?access_key=d1b90095d0b20832def727c348206e98
+restcountries.eu - country info:   Full NameCode,List of codes,Currency,Language,Capital city,Calling code,Region,Regional Bloc
+https://restcountries.eu/rest/v2/all    https://restcountries.eu/rest/v2/currency/{currency}
+npm i axios --save     for HTTP request
+
+(1) tag as async (2) await a response - assign a variable (may be same variable name as in arrow function/callback) (3) deal with calculations using assigned value (4) try/catch
+If thre are chained then blocks, 1 line for each then as an await.
+Use test suite (eg npm run test-watch) to keep checking that code still working.
 
 
 

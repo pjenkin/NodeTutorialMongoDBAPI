@@ -147,6 +147,44 @@ app.delete('/todos/:id', authenticate, (request, response) =>
   });
 });   // end of delete /todos/:id
 
+// challenge 10-134 - use async/await
+app.delete('/todos/:id', authenticate, async (request, response) =>
+{
+  try
+  {
+    // get the id
+    // validate the id (404 if not)
+    // remove todo by id   (1) success (a) no doc: 400 & empty body (b) doc found: return deleted doc in body (2)  error 400 empty body
+    var id = request.params.id;
+    // validate the id (404 if not) - NB return for program flow only
+    if (!ObjectID.isValid(id))
+    {
+      console.log(`Invalid ID ${id}`);
+      return response.status(404).send();
+    }
+    let todo = Todo.findOneAndRemove(
+    {
+      _id: id,
+      _creator: request.user._id
+    });
+    if (!todo)
+    {
+      console.log(`ID ${id} not found`);
+      // return response.status(400).send();
+      return response.status(404).send();
+    }
+    // otherwise (1) success (b) doc found: return deleted doc in body
+    console.log(`document with ID ${id} deleted`);
+    response.status(200).send({todo});
+  }
+  catch (e)
+  {
+    console.log(error.message);
+    response.status(400).send();
+  }
+});
+
+
 
 // challenge 8-100 - make route private: (1) 'authenticate' middleware, (2) query alter (3) test alter
 // PATCH route to change only specific parameters, as included in the body of the PATCH request
@@ -197,42 +235,62 @@ app.patch('/todos/:id', authenticate, (request, response) =>
 // challenge 8-88
 // use pick on properties (email, password), save and success or error
 // POST/users
-app.post('/users',(request, response) =>    // POST for todos
+// challenge 10-134 cut-down version using async/await
+// app.post('/users',(request, response) =>    // POST for todos
+// {
+//   // use lodash pick to ensure only correct fields/parameters/properties taken from POST
+//   var body = _.pick(request.body, ['email', 'password']);
+//
+//   var user = new User(body);    // abbreviated constructor argument to properties
+//
+//   // user.save().then((document) =>
+//   user.save().then(() =>
+//   { // success/resolve
+//     return user.generateAuthToken();
+//     // response.send(document);    // send the whole new mongodb document/record back
+//     console.log(`added user ${user.email}`);
+//   },
+//   (error) =>
+//   {   // error/reject
+//     //response.status(400).send(error);
+//     // temporarily REM out this 19/2/19 for 400  -
+//     // (node:3272) UnhandledPromiseRejectionWarning: Error: Can't set headers after they are sent.
+//     // only send 1 response per HTTP request https://stackoverflow.com/a/36728968
+//     // try bubbling up error with a throw
+//     console.log('trying to throw user post error ', error.message);
+//     throw new Error(error);               // added to try to throw error to send drekly
+//   }
+// )
+// .then( (token) =>
+// {
+//   response.header('x-auth', token).send(user);     // send user back in HTTP header
+// })
+// .catch ((error) =>
+// {
+//   console.log('error caught in sending x-auth token', error.message);
+//   response.status(400).send(error);
+// })
+// ;
+// });   // end of /users POST route
+
+// save & generateAuthToken
+
+app.post('/users', async (request, response) =>
 {
   // use lodash pick to ensure only correct fields/parameters/properties taken from POST
   var body = _.pick(request.body, ['email', 'password']);
-
   var user = new User(body);    // abbreviated constructor argument to properties
-
-  // user.save().then((document) =>
-  user.save().then(() =>
-  { // success/resolve
-    return user.generateAuthToken();
-    // response.send(document);    // send the whole new mongodb document/record back
-    console.log(`added user ${user.email}`);
-  },
-  (error) =>
-  {   // error/reject
-    //response.status(400).send(error);
-    // temporarily REM out this 19/2/19 for 400  -
-    // (node:3272) UnhandledPromiseRejectionWarning: Error: Can't set headers after they are sent.
-    // only send 1 response per HTTP request https://stackoverflow.com/a/36728968
-    // try bubbling up error with a throw
-    console.log('trying to throw user post error ', error.message);
+  try
+  {
+    await user.save();
+    let token = await user.generateAuthToken();
+    response.header('x-auth', token).send(user);     // send user back in HTTP header
+  } catch (e)
+  {
+    response.status(400).send(error);
     throw new Error(error);               // added to try to throw error to send drekly
   }
-)
-.then( (token) =>
-{
-  response.header('x-auth', token).send(user);     // send user back in HTTP header
-})
-.catch ((error) =>
-{
-  console.log('error caught in sending x-auth token', error.message);
-  response.status(400).send(error);
-})
-;
-});   // end of /users POST route
+});
 
 
 
@@ -269,40 +327,47 @@ app.get('/users/me', authenticate, (request, response) =>
 // find user with both email and decrypted password matching
 // send body data in response
 
-app.post('/users/login', (request, response) =>
+app.post('/users/login', async (request, response) =>
 {
-  // use lodash pick to ensure only correct fields/parameters/properties taken from POST
-  var body = _.pick(request.body, ['email', 'password']);
-
-  User.findByCredentials(body.email, body.password).then((user) => {
-    // response.send(user);
-    user.generateAuthToken().then((token) =>
-    {
-      response.header('x-auth', token).send(user);     // send user back in HTTP header
-    });
-  }).catch((error) =>
+  try
   {
+  // use lodash pick to ensure only correct fields/parameters/properties taken from POST
+    const body = _.pick(request.body, ['email', 'password']);
+    const user = await User.findByCredentials(body.email, body.password);
+    const token = await user.generateAuthToken();
+  response.header('x-auth', token).send(user);     // send user back in HTTP header
+  }
+  catch (e) {
     response.status(400).send();
-  });     /* catch principally in case no user found */
-
+  }
 });
 
 
 // logout by removing JWT tokens from token array/db property of user object / db document
 // specify middleware as 'authenticate' (must surely be logged in to log out)
-app.delete('/users/me/token', authenticate, (request, response) =>
+// app.delete('/users/me/token', authenticate, (request, response) =>
+app.delete('/users/me/token', authenticate, async (request, response) =>
 {
   // user instance method removeToken
-  request.user.removeToken(request.token).then( () =>
-  {
-    response.status(200).send();
-  },
-  // in case of error(s)
-  () =>
-  {
-    response.status(400).send();
-  }
-)
+//   request.user.removeToken(request.token).then( () =>
+//   {
+//     response.status(200).send();
+//   },
+//   // in case of error(s)
+//   () =>
+//   {
+//     response.status(400).send();
+//   }
+// )
+try
+{
+  await request.user.removeToken(request.token);
+  response.status(200).send();
+}
+catch (error)
+{
+  response.status(400).send();
+}
 });
 
 
